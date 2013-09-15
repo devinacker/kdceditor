@@ -1,0 +1,15 @@
+Interface/misc:
+ - use tr() more when appropriate (for future translation support)
+ - kirby-related toolbar/menu/mainwindow icons
+ - move terrain/obstacle enums into kirby.h or something
+ - emulator preview button/asm hack
+ - use QHash/QMap for metatile data
+ - much smaller build of Qt5 binaries on windows
+
+2D view:
+ - less bad programmer art
+
+3D view:
+ - rest of possible bumpers for 2way slopes (sometimes with gaps in corners if necessary)
+ - come up with a way to fix the QPixmap -> QImage -> QPixmap bottleneck when flipping 8x8 tiles
+   (this will speed up drawing immensely, but it's already not that slow on most modern machines)

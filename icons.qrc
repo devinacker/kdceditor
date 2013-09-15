@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/icons/arrow_in.png</file>
+        <file>images/icons/brick_edit.png</file>
+        <file>images/icons/cut.png</file>
+        <file>images/icons/delete.png</file>
+        <file>images/icons/disk.png</file>
+        <file>images/icons/door_in.png</file>
+        <file>images/icons/folder.png</file>
+        <file>images/icons/help.png</file>
+        <file>images/icons/image.png</file>
+        <file>images/icons/paste_plain.png</file>
+        <file>images/icons/resultset_first.png</file>
+        <file>images/icons/resultset_last.png</file>
+        <file>images/icons/resultset_next.png</file>
+        <file>images/icons/resultset_previous.png</file>
+        <file>images/icons/wand.png</file>
+        <file>images/icons/page_copy.png</file>
+        <file>images/icons/magnifier.png</file>
+    </qresource>
+</RCC>

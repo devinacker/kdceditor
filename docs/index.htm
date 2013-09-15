@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>Kirby's Dream Course Editor</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+
+<h1>Kirby's Dream Course Editor</h1>
+version 1.00
+<p>
+
+<table><tr><td>
+<a href="#intro">Introduction</a> - <a href="#main">The main window</a> - <a href="#preview">The preview window</a> - <a href="#edit">The edit window</a> - <a href="#properties">The properties window</a><br>
+<a href="#credits">Credits</a> - <a href="#changes">What's new</a> - <a href="#blahblah">Remarks</a> - <a href="#contact">Contact</a>
+</td></tr></table>
+<p>
+
+<a name="intro"></a>
+<h1>Introduction</h1>
+<b>Kirby's Dream Course Editor</b> (yes, <i>still</i> untitled) is a level editor for <i>Kirby's Dream Course</i> and its Japanese counterpart, <i>Kirby Bowl</i>.
+<p>
+The editor supports full editing of all of the game's courses, including demo courses and unused test courses which are only present in the Japanese version. In addition, background and music selections can be changed in order to fully customize courses. Individual courses can be saved to standalone files for easy distribution, and sample levels are included to demonstrate some of the editor's capabilities.
+<p>
+The editor supports US, European, and Japanese ROMs, both with or without copier headers. <i>Special Tee Shot</i> support is currently planned for future versions, but is not yet implemented due to numerous differences between the two games in how level and graphics data are organized.
+<p>
+Source code is available on <a href="http://github.com/devinacker" target="_blank">GitHub</a>, and is distributed under the MIT license.
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="main"></a>
+<h1>The main window</h1>
+<img class="center" src="images/mainwindow.png">
+<p>
+The main window is where all level editing takes place. When you load a ROM, level data is shown from a top-down perspective. Levels are composed of tiles, each one having a terrain type and an optional obstacle or enemy, as well as optional "bumpers" to the north, east, south, and west.
+<p>
+Each tile displays its current height in the corner. Hovering over a tile with the mouse will also display its current terrain and obstacle values (in hexadecimal), which are also displayed in more detail on the window's status bar.
+<p>
+Clicking and dragging will select a tile or range of tiles, which you can then edit by double-clicking, selecting the "Edit Tiles" option on the Edit menu or toolbar, or pressing the "E" key. This will bring up the <a href="#edit">edit window</a>, allowing you to modify the properties of the selected tiles. To deselect tiles, right-click anywhere within the level view.
+<p>
+To change levels, click the "course select" option on the Level menu or the toolbar. Use the "previous/next course/level" options to move back/forward one course or hole at a time, or hold Ctrl and use the left/right arrow keys (holding Shift at the same time will move by entire courses).
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="preview"></a>
+<h1>The preview window</h1>
+<img class="right" src="images/preview.png">
+<p>
+The preview window appears alongside the main menu and shows what the current level will look like in game. This window displays the isometric tile maps which the editor generates and the game displays, so what you see here is exactly what you get in game.
+<p>
+By default, the view in the preview window will automatically center on any tile that you move the mouse over in the main window, allowing you to view what you're editing without having to manually scroll the window. You can enable or disable this feature by selecting "Center Preview" in the Level menu or on the toolbar. Selecting "Show Preview" will redisplay the window if it is ever closed.
+<p>
+Note that the preview window does not account for palette changes, due to using pre-made graphics rather than loading them from the ROM (mostly due to laziness). This may change in future versions.
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="edit"></a>
+<h1>The edit window</h1>
+<img class="right" src="images/edit.png">
+<p>
+This is the window which appears when you double-click a selection of tiles or select the "Edit Tiles" menu option. From here, you can edit the terrain and obstacle values of a tile or tiles, increase/decrease tiles' height, add side bumpers, and select whether to display the tile's graphics on layer 1 or layer 2.
+
+<h2>Terrain</h2>
+The Terrain dropdown allows you to select one of several terrain types for the currently selected tile or tiles. The available selections consist mostly of:
+<ul>
+<li>Nothing: Selecting this option removes all terrain, obstacles, and other properties for the selected tile(s).</li>
+<li>Flat: The most common terrain type. Most obstacle/enemy types are intended for use on flat terrain.</li>
+<li>Slopes: There are four terrain types which represent terrain sloping downwards towards the four cardinal directions. These are the only types of slopes which can have bumpers on any side, except for the side at the bottom of the slope (i.e. a slope facing south can't have a south bumper, and so on).
+<p>
+Note that most enemies can only be placed on slopes facing east or south. Placing enemies on other slopes will cause them to be invisible in game and can cause the game to lock up.</li>
+<li>Two-way slopes: These are "corner" slopes which face two adjacent cardinal directions. These consist of:
+	<ul>
+	<li>"outer" slopes, which are used for things such as the corners of an island</li>
+	<li>"inner" slopes, which are used for things such as the corners of a rectangular water hazard</li>
+	</ul>
+<p>
+A good example of the difference between inner and outer slopes can be seen on 1P Course 2-1 in the original game; the "outer" slopes are used for the corners of the level, while the "inner" slopes are used in the sunken area in the center.</li>
+<li>Diagonal slopes: These slopes face northwest, northeast, southwest, and southeast. They are divided up into "top", "middle", and "bottom" parts; the top and bottom parts of the slope consist of both flat and sloped terrain. Bumpers can also be placed on the flat parts of diagonal slopes.</li>
+</ul>
+<p>
+If you are editing a range of tiles with multiple terrain types, the dropdown will default to a value of "(multiple)". This option causes each tile's existing terrain value to remain the same.
+
+<h2>Height</h2>
+The height slider sets the height of the selected tile or tiles. Possible values range from 0 to 31 - this maximum value is not a limitation of the game, but is imposed by the editor to prevent isometric tilemaps from becoming too large (see the <a href="#properties">properties</a> section for more details).
+<p>
+If you are editing tiles which use one of the sloped terrain types, the height value must be at least 1. This is because all of the slope types start at the given height value and slope <em>down</em> to 1 unit lower.
+<p>
+If you are editing a range of tiles with multiple height values, the slider will be labeled "Raise/Lower", and will allow you to raise or lower the selection by a relative amount.
+
+<h2>Obstacles</h2>
+The obstacle dropdown allows you to put down the things that go on top of terrain, including both enemies and other static hazards such as sand traps, water, spikes, and pretty much everything else.
+<p>
+A few things you should keep in mind when placing obstacles:
+<ul>
+<li>Kirby's starting position is obstacle 0x0C, which should always appear once in each hole you design. Leaving this out won't cause the game to crash, but the player probably won't end up in a very useful location.</li>
+<li>Whispy Woods and Kracko cannot be used in the same level, or else their sprite and palette data will overwrite each other in memory, leading to glitched graphics.</li>
+<li>Water hazards and conveyor belts cannot be used together for the same reason.</li>
+<li>A level can only contain up to eight different enemy types (not including Whispy Woods and Kracko) due to similar memory restrictions.</li>
+<li>Enemies other than Whispy Woods and Kracko cannot be placed on slopes which do not face either east or south. Enemies placed on any other slope types will be invisible, and will cause the game to hang if it attempts to turn one of them into the hole.</li>
+<li>Water hazards, conveyor belts, and bounce pads all consist of multiple different obstacle numbers corresponding to direction and/or slope orientation. For your convenience, you only need to use the non-sloped types of each obstacle, and the editor will automatically adjust the obstacle numbers to account for slopes, if possible.</li>
+<li>Several types of rotating tile exist which are not used in any of the original levels. These include ones which are always on (regardless of switch state), ones which turn on when the switch is turned off (and vice-versa), and slow versions of all of the other types. Multiple types of rotating tile can be used together in one level, but avoid using both slow and normal-speed versions of the same rotating tiles, or graphical glitching will occur.</li>
+<li>All warp types are available numbered both 1 and 2, allowing you to have two different sets of possible warp exits. If you use any warps, there must be at least two with the same color and number, or else the game will hang when trying to determine Kirby's new location.</li>
+</ul>
+<p>
+If you are editing a range of tiles with multiple obstacle types, the dropdown will default to a value of "(multiple)", just like the terrain dropdown.
+
+<h2>Bumpers</h2>
+These checkboxes allow you to place solid green bumpers on the north, south, east, and west edges of tiles. This is usually only useful for tiles which border empty space. Note that due to limited amounts of graphics assets, bumpers will only be visible when placed on flat tiles or slopes facing the four cardinal directions (including most "two-way" slopes).
+<p>
+These checkboxes only cover bumpers which span the very edges of tiles. For horizontal, vertical, and diagonal bumpers which pass through the centers of tiles, use the obstacle dropdown.
+<p>
+Also note that, due to the way the editor generates tile maps, there will be some situations in which the appearance of bumpers will not be 100% consistent with the way they appear in the original game. This is a purely cosmetic issue and is typically not very noticeable.
+<p>
+If you are editing a range of tiles with multiple bumper on/off values in any direction, the respective checkbox will have a value of "partially checked". This value will cause all selected tiles to retain their existing settings for that individual bumper.
+
+<h2>Layers</h2>
+During gameplay, graphics are divided up among three layers. The background is on layer 3, while the course is on layers 1 and 2. Most of the time, the ground is on layer 1, and non-sprite obstacles are on layer 2. However, there are times when terrain needs to overlap other terrain on screen, or times when Kirby can be behind some terrain while in front of other terrain. For these situations, you can cause selected tiles' terrain to appear on layer 2 instead, where it will be drawn on top of normal layer 1 terrain.
+<p>
+<table><tr>
+<td><img src="images/7-1-1layer.png"><br>
+1P course 7-1 using only layer 1</td>
+<td><img src="images/7-1-2layers.png"><br>
+1P course 7-1 using layers 1 and 2</td>
+</tr></table>
+<p>
+Note that Kirby is always drawn <em>in front of</em> layer 2, except when above empty space (i.e. if Kirby is immediately capable of going out of bounds), where Kirby can be between layers 1 and 2, or behind both layers.
+<p>
+Another word of warning: when putting tiles on layer 2, any non-sprite obstacles will be drawn on layer 1, with the priority bit set so that they still appear on top of the terrain. Putting obstacles on layer 1 like this can cause visual issues with any layer 1 terrain which is close by on-screen, so use caution when putting obstacles on layer 2 tiles if they are also close to layer 1 tiles.
+<p>
+In rare cases, you might place combinations of terrain which don't occur in the original levels, and thus don't have appropriate graphics available. If this happens, you can place one or more of the offending tiles on layer 2, causing them to be drawn separately instead of "connected" to adjacent terrain. One use for this is the ability to place diagonal slopes next to walls:
+<p>
+<table><tr>
+<td><img src="images/diag-1layer.png"><br>
+Diagonal slopes on layer 1</td>
+<td><img src="images/diag-2layers.png"><br>
+Diagonal slopes on layer 2</td>
+</tr></table>
+<p>
+If you are editing a range of tiles which use both layers, the "Keep" radio button will be selected by default. As with the other editing controls, this option causes the selected tiles' layer settings to be left alone.
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="properties"></a>
+<h1>The properties window</h1>
+<img class="right" src="images/properties.png">
+<p>
+The properties window allows you to customize some details of both the current course and the specific hole you are editing.
+<h2>Course properties</h2>
+The course properties controls allow you to change the current course's background and palette settings.
+<p>
+Note that, as the text in the screenshot says, changing a course's background always effects multiple courses. For example, if you change 1P Course 1's background, the same change will be applied to 1P Extra 1, 2P Course 1, and 2P Extra 1.
+<p>
+Palettes, unlike backgrounds, <em>only</em> affect the current course. The editor allows you to choose palettes for both the ground and the water hazards. Normally, water hazards use the same-numbered palette as the ground, but different combinations are also possible.
+<h2>Level properties</h2> 
+The level properties controls allow you to change a level's dimensions and background music.
+<p>
+<i>Kirby's Dream Course</i> normally uses the same music tracks for several holes in a row, but that kind of consistency isn't actually a requirement - you can just as easily use 8 different music tracks in one course if you want to.
+<p>
+Note that, because the Japanese version's intro sequence was removed from the US/European versions, its music track is only usable in the Japanese version.
+<p>
+The level length and width boxes allow you to resize the level (length = north to south, width = east to west). Due to memory restrictions, the two-dimensional area of a level cannot be greater than 2,048; all of the original levels are much smaller in area than this, so this limitation is not likely to be much of a problem.
+<p>
+Note that the isometric tilemaps are also limited in size; their size is determined by the length, width, and height of the level, as well as how much (or how little) of the level is empty space. Once again, the limit here is much higher than what any of the original levels reach, so this should only present a problem if you are making unreasonably large levels that come close to the length/width limits. In the event that this actually happens, you will be presented with a warning when saving your ROM, and part of your level will not be visible in game.
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="credits"></a>
+<h1>Credits</h1>
+The author would like to extend well-earned salami sandwiches to each of the following individuals and groups:
+<p>
+<ul>
+<li><b>borokobo</b> for creating <a href="http://www.geocities.jp/borokobo/neo/download.html#KirbyBowl">KBE and KBEAssist</a>, the Kirby Bowl hacking tools (in Japanese) which partially inspired the creation of this one
+<li><b>creaothceann</b> for vSNES, which I used extensively to painstakingly put together tile map data from the original levels</li>
+<li><b><a href="http://tcrf.net/">The Cutting Room Floor</a></b> and <a href="irc://irc.badnik.net/tcrf">#tcrf</a> for moral support, listening to me blather on about this thing all the time, and getting me into this mess (and giving me a reason to dig into over a hundred games and counting)</li>
+<li><b>DarkMatt</b> for testing and some example levels</li>
+<li><b>Disnesquick</b> for SPASMDK
+<li><b>Geiger</b> for his snes9x debugger</li>
+<li><b>Graham</b> for his <a href="http://oxyron.de/html/opcodes.html">65xx series reference</a></li>
+<li><b>Kles</b> for extensive testing, suggestions, and some cool example levels</li>
+<li><b>Mark James</b> (<a href="http://www.famfamfam.com/">famfamfam</a>) for the Silk Icons set, used for menu and toolbar graphics</li>
+<li>Everyone else who has downloaded and supported the development of this program in any way</li>
+</ul>
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="changes"></a>
+<h1>What's new</h1>
+See <a href="../CHANGES.txt" target="_blank">the full changelog</a> for a complete version history.
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="blahblah"></a>
+<h1>Remarks</h1>
+As of writing this documentation for version 1.00, it's been <s>a little over half</s> nearly a year since I started researching <i>Kirby's Dream Course</i>, and it wasn't too much longer before I started working on this editor. I was itching for a cool ROM hacking project to undertake, and I had coincidentally been digging into this game to research the Japanese version's debug mode for an article on The Cutting Room Floor.
+<p>
+At some point while messing around with <i>Kirby Bowl</i>, I stumbled upon the game's decompression routine, rewrote it in the form of a small tool called "exhal", and began exploring the game's data. Most of it quickly became clear, and I set out to write a document on the level format used by the game.
+<p>
+Around that time, I semi-publically announced my intention to write an editor, and by chance I found video footage on Nico Nico Douga of a Japanese hacker's custom <i>Kirby Bowl</i> levels, and was later given a link to their editor, "KBE". While the original editor was a bit lacking in the interface department, this obscure tool and the hacked <i>Kirby Bowl</i> videos proved that there was an audience for this sort of thing, and I resolved to make a more accessible alternative.
+<p>
+A couple of months later, delayed by my acquiring a full-time job, I had a rudimentary level editor put together. It still needed to generate the pre-made isometric tile maps that the game actually displayed, so I set out opening up dozens of save states and punching in what ended up as just a little bit under 3,500 lines of raw tile data, eight tiles per line. The lack of a clear-cut pattern in the way the game's graphics were organized, along with some annoying properties of the visual perspective, made this a monstrously tedious affair.
+<p>
+Nevertheless, it was eventually done, and after patching up some quirks in the tile map generation code, the editor was finally almost ready for prime time. About two months of testing and user feedback later (and several more months of laziness), and version 1.00 is finally here.
+<p>
+At this point, I'm probably going to take a break to work on something else (or nothing at all), but comments, etc., will always be welcome.
+<p>
+<i>Special Tee Shot</i> support is still in the cards, but it'll be a lot more tedious tile-wrangling before that happens "for real".
+<p>
+Oh, and as the old text readme mentioned, this is my first real GUI application ever. I'm sorry that it doesn't look very good. (I'm also sorry that the download for the Windows build is so much larger than before, as I updated to Qt 5 but didn't ever have time to build smaller Qt DLLs with fewer dependencies. At least you can delete the Qt 4 DLLs from previous versions.)
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<a name="contact"></a>
+<h1>Contact</h1>
+If you want to yell at me about something, here's how you can:
+<p>
+<b>Email</b>:<br>
+<a href="mailto:d@revenant1.net">d@revenant1.net</a>
+<p>
+<b>IRC</b>:<br>
+"devin"     on irc.badnik.net<br>
+"Revenant"  on irc.oftc.net<br>
+"Revenant`" on irc.synirc.net and irc.dal.net
+<p>
+<b>Forums</b>:<br>
+<a href=http://jul.rustedlogic.net/profile.php?id=504>http://jul.rustedlogic.net/profile.php?id=504</a><br>
+<a href=http://www.romhacking.net/forum/index.php?action=profile;u=10455>http://www.romhacking.net/forum/index.php?action=profile;u=10455</a>
+<p>
+<span class="smallLink">(<a href="#top">top</a>)</span>
+
+<p>
+copyright 2013 Devin "Revenant" Acker - "life is but a dream"
+</body>
+</html>

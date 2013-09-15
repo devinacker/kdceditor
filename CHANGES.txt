@@ -1,0 +1,75 @@
+v1.00 [2013-09-15]
+Released source under MIT license
+Updated source and build to Qt 5
+Added sample course "demo-6holes.kdc" [by Revenant]
+Added sample course "KirbysRevCourseSampleSelects.kdc" [by DarkMatt]
+2D view displays an indicator for layer 2 tiles
+Added support for bumpers on diagonal slope top/bottom tiles, and some 2-way slopes
+Fixed several Gordo path types sometimes behaving like invisible Gordos (?! HAL...)
+Fixed tiles for terrain 0x1A (slope northwest middle)
+Fixed tiles for obstacle 0x37 (east conveyor sloping down)
+Fixed east/west bumpers for north slope
+Fixed north/west bumpers of north/west slopes next to a flat tile with no bumpers
+Fixed tiles for adjacent rotating spaces
+Reworked some other tile data to be less broken sometimes
+Slopes on layer 1 next to terrain on layer 2 don't sometimes have messed up edges anymore
+Window maximized state and level image path are saved on exit
+More menu/toolbar actions are enabled/disabled when appropriate
+Current file name is displayed in titlebar
+Removed several unused icons
+Prevent main window being closed while file save is in progress
+Fixed small memory leaks
+
+v0.96 [2013-07-06]
+Fixed bug where a level being saved near the end of a ROM bank sometimes caused a bad pointer
+    (i.e. sometimes a chunk of data would need to be moved to the beginning of the next bank
+    when the current bank ran out of space, but the pointer to the data didn't reflect this
+    because the pointer was written BEFORE moving to the next bank. oops...)
+    [thanks DarkMatt for initially finding this]
+
+v0.95 [2013-06-27]
+Added sample course "carbowl.kdc" [thanks Kles]
+Replaced README.txt with HTML documentation
+Added course select dialog
+Added cut/copy/paste
+Added various keyboard shortcuts
+Added support for several unused rotating tile types
+Added "keep" layer option to preserve existing layer assignment
+Sprites are now displayed in preview window
+Applying obstacle numbers 24/30/31/32/33 now adjusts for slopes
+Fixed bug with selection area not being updated when changing levels or closing a ROM
+Fixed bug with scrollbar size remaining when closing ROM
+Fixed bug relating to layer 2 terrain drawing too many wall tiles when behind layer 1
+Fixed background 3 not displaying correctly in US/EU ROMs [thanks DarkMatt]
+Fixed missing tile for terrain 0x15
+Fixed messed up south bumper for terrain 0x07
+Setting terrain type 0x00 now fully removes other tile properties
+Removed some menu items for a few still-unimplemented actions
+Window positions/sizes and settings are saved on exit
+
+v0.90 [2013-06-15]:
+US/Europe ROM support
+Updated compression routine to make saving levels about 3-4x faster
+Editor now generates sprite clipping tables
+    (this means Kirby won't appear to be on top of something when falling behind it anymore)
+Added load/save course files option
+Fixed "save level" menu item not doing anything
+Added notice to readme about putting Kracko and Whispy Woods in same level
+Editor now displays error when:
+    - trying to save to a file that has been moved/deleted [thanks Kles]
+    - saving a level whose 3D tile map becomes too large
+Fixed bugs relating to opening/closing ROMs with headers
+Handle possible corrupted ROMs a bit more gracefully
+Fixed bug where west slope had the wrong tiles for the east border [thanks Kles]
+Dedede's stage sprites/tiles now supported
+Changed some music titles to match the snesmusic.org set
+Bit of interface tweaks, mostly under the hood
+Updated README.txt (real documentation still forthcoming)
+
+v0.80b [2013-06-01]:
+First public release
+Fixed some border tiles for slope down to east
+Fixed maximum values for level length/width boxes
+
+v0.80 [2013-06-01]:
+Initial limited release

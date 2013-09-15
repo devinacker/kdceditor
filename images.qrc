@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/water.png</file>
+        <file>images/terrain.png</file>
+        <file>images/bounce.png</file>
+        <file>images/traps.png</file>
+        <file>images/conveyor.png</file>
+        <file>images/kirby.png</file>
+        <file>images/warps.png</file>
+        <file>images/unknown.png</file>
+        <file>images/gordo.png</file>
+        <file>images/enemies.png</file>
+        <file>images/rotate.png</file>
+        <file>images/3dtiles.png</file>
+        <file>images/movers.png</file>
+        <file>images/bumpers.png</file>
+        <file>images/3dtiles-water.png</file>
+        <file>images/switches.png</file>
+        <file>images/dedede.png</file>
+        <file>images/gordo3d.png</file>
+        <file>images/main16.png</file>
+    </qresource>
+</RCC>

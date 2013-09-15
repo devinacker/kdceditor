@@ -1,0 +1,63 @@
+h1 {
+	font-family: verdana, sans-serif;
+	color: black;
+	clear: both;
+}
+
+h2 {
+	font-family: verdana, sans-serif;
+	color: black;
+}
+
+body {
+	font-family: sans-serif;
+	color: black;
+	background: url("images/background.png");
+}
+
+a:link {
+	color: blue;
+	text-decoration: none;
+}
+
+a:active {
+	color: blue;
+}
+
+a:hover {
+	color: blue;
+	text-decoration: underline;
+}
+
+a:visited {
+	color: blue;
+	text-decoration: none;
+}
+
+span.smallLink {
+	font-size: 75%;
+}
+
+img.right {
+	float: right;
+}
+
+img.center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table {
+	background-color: #FFE0F0;
+	border-collapse: collapse;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td {
+	border: solid 2px;
+	border-color: #FFC0C8;
+	padding: 3px;
+	text-align: center;
+}

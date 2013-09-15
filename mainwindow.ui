@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>640</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Kirby's Dream Course Editor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/images/main16.png</normaloff>:/images/main16.png</iconset>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="backgroundBrush">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>128</red>
+         <green>128</green>
+         <blue>128</blue>
+        </color>
+       </brush>
+      </property>
+      <property name="foregroundBrush">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Open_ROM"/>
+    <addaction name="action_Save_ROM"/>
+    <addaction name="action_Save_ROM_As"/>
+    <addaction name="action_Close_ROM"/>
+    <addaction name="separator"/>
+    <addaction name="action_Exit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Cut"/>
+    <addaction name="action_Copy"/>
+    <addaction name="action_Paste"/>
+    <addaction name="action_Delete"/>
+    <addaction name="separator"/>
+    <addaction name="action_Edit_Tiles"/>
+   </widget>
+   <widget class="QMenu" name="menuLevel">
+    <property name="title">
+     <string>&amp;Level</string>
+    </property>
+    <addaction name="action_Save_Level"/>
+    <addaction name="action_Save_Level_to_Image"/>
+    <addaction name="separator"/>
+    <addaction name="action_Load_Course_from_File"/>
+    <addaction name="action_Save_Course_to_File"/>
+    <addaction name="separator"/>
+    <addaction name="action_Level_Properties"/>
+    <addaction name="separator"/>
+    <addaction name="action_Show_Preview"/>
+    <addaction name="action_Center_Preview"/>
+    <addaction name="separator"/>
+    <addaction name="action_Select_Course"/>
+    <addaction name="action_Previous_Course"/>
+    <addaction name="action_Next_Course"/>
+    <addaction name="action_Previous_Level"/>
+    <addaction name="action_Next_Level"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_Contents"/>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="action_Dump_Level"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuLevel"/>
+   <addaction name="menuHelp"/>
+   <addaction name="menuDebug"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomToolBarArea|Qt::TopToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="action_Open_ROM">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open ROM...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Save_ROM">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/disk.png</normaloff>:/images/icons/disk.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save ROM</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="action_Save_ROM_As">
+   <property name="text">
+    <string>Save ROM As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="action_Close_ROM">
+   <property name="text">
+    <string>Close ROM</string>
+   </property>
+  </action>
+  <action name="action_Load_Course_from_File">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Load Course from &amp;File...</string>
+   </property>
+  </action>
+  <action name="action_Save_Level">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save Level...</string>
+   </property>
+  </action>
+  <action name="action_Save_Course_to_File">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save Course to File...</string>
+   </property>
+  </action>
+  <action name="action_Exit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_Cut">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/cut.png</normaloff>:/images/icons/cut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cu&amp;t</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="action_Copy">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/page_copy.png</normaloff>:/images/icons/page_copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="action_Paste">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/paste_plain.png</normaloff>:/images/icons/paste_plain.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="action_Delete">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/delete.png</normaloff>:/images/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="action_Contents">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/help.png</normaloff>:/images/icons/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Contents...</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About...</string>
+   </property>
+  </action>
+  <action name="action_Edit_Tiles">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/brick_edit.png</normaloff>:/images/icons/brick_edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Edit Tiles...</string>
+   </property>
+   <property name="shortcut">
+    <string>E</string>
+   </property>
+  </action>
+  <action name="action_Previous_Level">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/resultset_previous.png</normaloff>:/images/icons/resultset_previous.png</iconset>
+   </property>
+   <property name="text">
+    <string>Previous Level</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="action_Next_Level">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/resultset_next.png</normaloff>:/images/icons/resultset_next.png</iconset>
+   </property>
+   <property name="text">
+    <string>Next Level</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
+   </property>
+  </action>
+  <action name="action_Previous_Course">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/resultset_first.png</normaloff>:/images/icons/resultset_first.png</iconset>
+   </property>
+   <property name="text">
+    <string>Previous Course</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Left</string>
+   </property>
+  </action>
+  <action name="action_Next_Course">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/resultset_last.png</normaloff>:/images/icons/resultset_last.png</iconset>
+   </property>
+   <property name="text">
+    <string>Next Course</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Right</string>
+   </property>
+  </action>
+  <action name="action_Level_Properties">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/wand.png</normaloff>:/images/icons/wand.png</iconset>
+   </property>
+   <property name="text">
+    <string>Level Properties</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="action_Dump_Header">
+   <property name="text">
+    <string>Dump level header to stdout</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action_Dump_Level">
+   <property name="text">
+    <string>Dump level chunks to text file</string>
+   </property>
+  </action>
+  <action name="action_Show_Preview">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/magnifier.png</normaloff>:/images/icons/magnifier.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Preview</string>
+   </property>
+  </action>
+  <action name="action_Center_Preview">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/arrow_in.png</normaloff>:/images/icons/arrow_in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Center Preview</string>
+   </property>
+  </action>
+  <action name="action_Save_Level_to_Image">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/image.png</normaloff>:/images/icons/image.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Level to Image...</string>
+   </property>
+  </action>
+  <action name="action_Select_Course">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/door_in.png</normaloff>:/images/icons/door_in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select Course...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="icons.qrc"/>
+  <include location="images.qrc"/>
+ </resources>
+ <connections/>
+</ui>
