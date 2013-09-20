@@ -69,7 +69,6 @@ void PreviewWindow::centerOn(int x, int y) {
     // start at 32 pixels
     // move 32 right for each positive move on the x-axis (west to east)
     // and  32 left  for each positive move on the y-axis (north to south)
-    //int centerX = 32 * (1 + x + (l - y - 1));
     int centerX = 32 * (x + l - y);
     // start at 16 *(h + 1) pixels
     // move 16 down for each positive move on the x-axis (west to east)
