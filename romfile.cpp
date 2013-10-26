@@ -16,9 +16,7 @@
 #include <cstring>
 
 #include "romfile.h"
-extern "C" {
 #include "compress.h"
-}
 
 ROMFile::ROMFile() : QFile(),
     header(false),

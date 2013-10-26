@@ -7,9 +7,8 @@
   This code is released under the terms of the MIT license.
   See COPYING.txt for details.
 */
-extern "C" {
+
 #include "compress.h"
-}
 #include "romfile.h"
 #include "metatile.h"
 #include "level.h"
