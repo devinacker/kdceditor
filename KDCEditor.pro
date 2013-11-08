@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     metatile_borders.cpp \
     metatile_obstacles.cpp \
     coursewindow.cpp \
-    previewscene.cpp
+    previewscene.cpp \
+    mapchange.cpp
 
 HEADERS  += mainwindow.h \
     tileeditwindow.h \
@@ -51,7 +52,8 @@ HEADERS  += mainwindow.h \
     metatile.h \
     coursewindow.h \
     version.h \
-    previewscene.h
+    previewscene.h \
+    mapchange.h
 
 FORMS    += mainwindow.ui \
     tileeditwindow.ui \

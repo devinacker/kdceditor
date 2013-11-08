@@ -109,6 +109,11 @@ void MainWindow::setupSignals() {
                      this, SLOT(close()));
 
     // edit menu
+    QObject::connect(ui->action_Undo, SIGNAL(triggered()),
+                     scene, SLOT(undo()));
+    QObject::connect(ui->action_Redo, SIGNAL(triggered()),
+                     scene, SLOT(redo()));
+
     QObject::connect(ui->action_Cut, SIGNAL(triggered()),
                      scene, SLOT(cut()));
     QObject::connect(ui->action_Copy, SIGNAL(triggered()),
@@ -119,10 +124,13 @@ void MainWindow::setupSignals() {
                      scene, SLOT(deleteTiles()));
     QObject::connect(ui->action_Edit_Tiles, SIGNAL(triggered()),
                      scene, SLOT(editTiles()));
+
     QObject::connect(scene, SIGNAL(edited()),
                      previewWin, SLOT(refresh()));
     QObject::connect(scene, SIGNAL(edited()),
                      this, SLOT(setUnsaved()));
+    QObject::connect(scene, SIGNAL(edited()),
+                     this, SLOT(setUndoRedoActions()));
 
     // level menu
     QObject::connect(ui->action_Save_Level, SIGNAL(triggered()),
@@ -185,6 +193,9 @@ void MainWindow::setupActions() {
     ui->toolBar->addSeparator();
 
     // from edit menu
+    ui->toolBar->addAction(ui->action_Undo);
+    ui->toolBar->addAction(ui->action_Redo);
+    ui->toolBar->addSeparator();
     ui->toolBar->addAction(ui->action_Edit_Tiles);
     ui->toolBar->addAction(ui->action_Level_Properties);
     ui->toolBar->addSeparator();
@@ -262,6 +273,7 @@ void MainWindow::setOpenFileActions(bool val) {
   actions that are disabled while saving the file
 */
 void MainWindow::setEditActions(bool val) {
+    setUndoRedoActions(val);
     ui->action_Cut             ->setEnabled(val);
     ui->action_Copy            ->setEnabled(val);
     ui->action_Paste           ->setEnabled(val);
@@ -275,6 +287,14 @@ void MainWindow::setEditActions(bool val) {
     ui->action_Level_Properties->setEnabled(val);
     ui->action_Load_Course_from_File->setEnabled(val);
     ui->action_Save_Course_to_File->setEnabled(val);
+}
+
+/*
+ *actions that depend on the state of the undo stack
+ */
+void MainWindow::setUndoRedoActions(bool val) {
+    ui->action_Undo->setEnabled(val & scene->canUndo());
+    ui->action_Redo->setEnabled(val & scene->canRedo());
 }
 
 /*
@@ -595,6 +615,7 @@ int MainWindow::closeFile() {
 
     scene->cancelSelection();
     scene->refresh();
+    scene->clearStack();
     previewWin->refresh();
     previewWin->hide();
 
@@ -851,6 +872,8 @@ void MainWindow::setLevel(int level) {
     // set up the graphics view
     scene->cancelSelection();
     scene->refresh();
+    scene->clearStack();
+    setUndoRedoActions(false);
     ui->graphicsView->update();
 
     previewWin->refresh();
@@ -865,6 +888,7 @@ void MainWindow::saveCurrentLevel() {
     if (!fileOpen || currentLevel.modifiedRecently == false)
         return;
 
+    scene->setClean();
     currentLevel.modifiedRecently = false;
     unsaved = true;
 

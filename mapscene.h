@@ -9,6 +9,7 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsPixmapItem>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <QtWidgets/QUndoStack>
 
 #include "level.h"
 
@@ -28,6 +29,8 @@ private:
 
     maptile_t copyBuffer[64][64];
     uint copyWidth, copyLength;
+
+    QUndoStack stack;
 
     leveldata_t *level;
 
@@ -50,10 +53,19 @@ private slots:
 
 public:
     MapScene(QObject *parent = 0, leveldata_t *currentLevel = 0);
+
+    bool canUndo() const;
+    bool canRedo() const;
+    bool isClean() const;
+
     void cancelSelection();
 
 public slots:
     void editTiles();
+    void undo();
+    void redo();
+    void clearStack();
+    void setClean();
     void cut();
     void copy();
     void paste();

@@ -24,7 +24,7 @@ public:
     explicit TileEditWindow(QWidget *parent = 0);
     ~TileEditWindow();
 
-    void startEdit(leveldata_t *level, QRect sel);
+    int startEdit(leveldata_t *level, QRect sel);
     
 private:
     Ui::TileEditWindow *ui;

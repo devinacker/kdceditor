@@ -12,6 +12,7 @@
 #include "level.h"
 #include "mainwindow.h"
 #include "mapscene.h"
+#include "mapchange.h"
 #include "tileeditwindow.h"
 #include "graphics.h"
 
@@ -37,6 +38,7 @@ MapScene::MapScene(QObject *parent, leveldata_t *currentLevel)
       tileX(-1), tileY(-1),
       selLength(0), selWidth(0), selecting(false),
       copyWidth(0), copyLength(0),
+      stack(this),
       level(currentLevel),
       infoItem(NULL), selectionItem(NULL)
 
@@ -77,9 +79,13 @@ void MapScene::editTiles() {
     if (selWidth == 0 || selLength == 0)
         return;
 
+    MapChange *edit = new MapChange(level, selX, selY, selWidth, selLength);
+
     // send the level and selection info to a new tile edit window instance
     TileEditWindow win;
-    win.startEdit(level, QRect(selX, selY, selWidth, selLength));
+    if (win.startEdit(level, QRect(selX, selY, selWidth, selLength)))
+        stack.push(edit);
+    else delete edit;
 
     // redraw the map scene with the new properties
     emit edited();
@@ -173,6 +179,51 @@ void MapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 /*
+ *Undo/redo functions
+ */
+bool MapScene::canUndo() const {
+    return stack.canUndo();
+}
+
+bool MapScene::canRedo() const {
+    return stack.canRedo();
+}
+
+bool MapScene::isClean() const {
+    return stack.isClean();
+}
+
+void MapScene::undo() {
+    if (stack.canUndo()) {
+        emit statusMessage(QString("Undoing ").append(stack.undoText()));
+        stack.undo();
+        emit edited();
+
+        level->modified = true;
+        level->modifiedRecently = !isClean();
+    }
+}
+
+void MapScene::redo() {
+    if (stack.canRedo()) {
+        emit statusMessage(QString("Redoing ").append(stack.redoText()));
+        stack.redo();
+        emit edited();
+
+        level->modified = true;
+        level->modifiedRecently = !isClean();
+    }
+}
+
+void MapScene::setClean() {
+    stack.setClean();
+}
+
+void MapScene::clearStack() {
+    stack.clear();
+}
+
+/*
   Cut/copy/paste functions
 */
 void MapScene::cut() {
@@ -187,6 +238,12 @@ void MapScene::copyTiles(bool cut = false) {
     // if there is no selection, don't do anything
     if (selWidth == 0 || selLength == 0) return;
 
+    MapChange *edit;
+    if (cut) {
+        edit = new MapChange(level, selX, selY, selLength, selWidth);
+        edit->setText("cut");
+    }
+
     // otherwise, move stuff into the buffer
     for (int i = 0; i < selLength; i++) {
         for (int j = 0; j < selWidth; j++) {
@@ -200,8 +257,7 @@ void MapScene::copyTiles(bool cut = false) {
     copyLength = selLength;
 
     if (cut) {
-        level->modified = true;
-        level->modifiedRecently = true;
+        stack.push(edit);
         emit edited();
     }
 
@@ -218,6 +274,9 @@ void MapScene::paste() {
     if (selWidth == 0 || selLength == 0
             || copyWidth == 0 || copyLength == 0) return;
 
+    MapChange *edit = new MapChange(level, selX, selY, copyLength, copyWidth);
+    edit->setText("paste");
+
     // otherwise, move stuff into the level from the buffer
     for (uint i = 0; i < copyLength && selY + i < 64; i++) {
         for (uint j = 0; j < copyWidth && selX + j < 64; j++) {
@@ -225,8 +284,7 @@ void MapScene::paste() {
         }
     }
 
-    level->modified = true;
-    level->modifiedRecently = true;
+    stack.push(edit);
     emit edited();
     updateSelection();
 
@@ -240,6 +298,9 @@ void MapScene::deleteTiles() {
     // if there is no selection, don't do anything
     if (selWidth == 0 || selLength == 0) return;
 
+    MapChange *edit = new MapChange(level, selX, selY, selLength, selWidth);
+    edit->setText("delete");
+
     // otherwise, delete stuff
     for (int i = 0; i < selLength && selY + i < 64; i++) {
         for (int j = 0; j < selWidth && selX + j < 64; j++) {
@@ -247,8 +308,7 @@ void MapScene::deleteTiles() {
         }
     }
 
-    level->modified = true;
-    level->modifiedRecently = true;
+    stack.push(edit);
     emit edited();
     updateSelection();
 

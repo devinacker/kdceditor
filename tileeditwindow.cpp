@@ -48,7 +48,7 @@ TileEditWindow::~TileEditWindow()
     delete ui;
 }
 
-void TileEditWindow::startEdit(leveldata_t *level, QRect sel) {
+int TileEditWindow::startEdit(leveldata_t *level, QRect sel) {
     this->level = level;
 
     // iterate through the tiles in the selection and build up the
@@ -152,7 +152,7 @@ void TileEditWindow::startEdit(leveldata_t *level, QRect sel) {
     ui->radioButton_Layer2->setChecked(tileInfo.layer == 1);
 
     // run the modal dialog
-    this->exec();
+    return this->exec();
 }
 
 /*
@@ -246,10 +246,6 @@ void TileEditWindow::accept() {
             newTile->flags.dummy = 0;
         }
     }
-
-    // if the tiles were modified, set the level modified flags
-    level->modified = true;
-    level->modifiedRecently = true;
 
     QDialog::accept();
 }

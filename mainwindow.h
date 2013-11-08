@@ -62,6 +62,12 @@ protected slots:
     // debug menu crap
     void dumpLevel();
     
+    // toolbar updates
+    void setOpenFileActions(bool val);
+    void setEditActions(bool val);
+    void setUndoRedoActions(bool val = true);
+    void setLevelChangeActions(bool val);
+
 protected:
     void closeEvent(QCloseEvent *);
 
@@ -97,9 +103,6 @@ private:
     void setupActions();
     void getSettings();
     void saveSettings();
-    void setOpenFileActions(bool);
-    void setEditActions(bool);
-    void setLevelChangeActions(bool);
     void updateTitle();
     void setLevel(int);
     QMessageBox::StandardButton checkSaveLevel();
