@@ -1,3 +1,8 @@
+/*
+    This code is released under the terms of the MIT license.
+    See COPYING.txt for details.
+*/
+
 #ifndef MAPCHANGE_H
 #define MAPCHANGE_H
 
@@ -9,7 +14,7 @@ class MapChange : public QUndoCommand
 {
 public:
     explicit MapChange(leveldata_t *level,
-                       uint x, uint y, uint l, uint w,
+                       uint x, uint y, uint w, uint l,
                        QUndoCommand *parent = 0);
     ~MapChange();
 

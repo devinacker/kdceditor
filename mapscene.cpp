@@ -240,7 +240,7 @@ void MapScene::copyTiles(bool cut = false) {
 
     MapChange *edit;
     if (cut) {
-        edit = new MapChange(level, selX, selY, selLength, selWidth);
+        edit = new MapChange(level, selX, selY, selWidth, selLength);
         edit->setText("cut");
     }
 
@@ -274,7 +274,7 @@ void MapScene::paste() {
     if (selWidth == 0 || selLength == 0
             || copyWidth == 0 || copyLength == 0) return;
 
-    MapChange *edit = new MapChange(level, selX, selY, copyLength, copyWidth);
+    MapChange *edit = new MapChange(level, selX, selY, copyWidth, copyLength);
     edit->setText("paste");
 
     // otherwise, move stuff into the level from the buffer
@@ -298,7 +298,7 @@ void MapScene::deleteTiles() {
     // if there is no selection, don't do anything
     if (selWidth == 0 || selLength == 0) return;
 
-    MapChange *edit = new MapChange(level, selX, selY, selLength, selWidth);
+    MapChange *edit = new MapChange(level, selX, selY, selWidth, selLength);
     edit->setText("delete");
 
     // otherwise, delete stuff
