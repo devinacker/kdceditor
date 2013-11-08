@@ -439,6 +439,10 @@
    </property>
   </action>
   <action name="action_Undo">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/arrow_undo.png</normaloff>:/images/icons/arrow_undo.png</iconset>
+   </property>
    <property name="text">
     <string>Undo</string>
    </property>
@@ -447,6 +451,10 @@
    </property>
   </action>
   <action name="action_Redo">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/arrow_redo.png</normaloff>:/images/icons/arrow_redo.png</iconset>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>

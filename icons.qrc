@@ -17,5 +17,7 @@
         <file>images/icons/wand.png</file>
         <file>images/icons/page_copy.png</file>
         <file>images/icons/magnifier.png</file>
+        <file>images/icons/arrow_redo.png</file>
+        <file>images/icons/arrow_undo.png</file>
     </qresource>
 </RCC>
