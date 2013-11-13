@@ -13,7 +13,7 @@
 class MapChange : public QUndoCommand
 {
 public:
-    explicit MapChange(leveldata_t *level,
+    explicit MapChange(leveldata_t *currLevel,
                        uint x, uint y, uint w, uint l,
                        QUndoCommand *parent = 0);
     ~MapChange();
@@ -24,7 +24,7 @@ public:
 
 private:
     leveldata_t *level;
-    uint x, y, l, w;
+    uint x, y, w, l;
     maptile_t *before, *after;
     bool first;
 };

@@ -6,21 +6,14 @@
 #include "mapchange.h"
 #include "level.h"
 
-MapChange::MapChange(leveldata_t *level, uint x, uint y, uint w, uint l, QUndoCommand *parent) :
-    QUndoCommand(parent)
+MapChange::MapChange(leveldata_t *currLevel, uint selX, uint selY, uint selW, uint selL, QUndoCommand *parent) :
+    QUndoCommand(parent),
+    level(currLevel),
+    x(selX), y(selY), w(selW), l(selL),
+    before(new maptile_t[l * w]),
+    after (new maptile_t[l * w]),
+    first(true)
 {
-    this->level = level;
-
-    this->x = x;
-    this->y = y;
-    this->w = w;
-    this->l = l;
-
-    this->before = new maptile_t[l * w];
-    this->after  = new maptile_t[l * w];
-
-    this->first = true;
-
     // when instantiated, save the region's pre-edit state
     if (level) {
         for (uint row = 0; row < l; row++)
@@ -32,8 +25,8 @@ MapChange::MapChange(leveldata_t *level, uint x, uint y, uint w, uint l, QUndoCo
 }
 
 MapChange::~MapChange() {
-    delete[] this->before;
-    delete[] this->after;
+    delete[] before;
+    delete[] after;
 }
 
 void MapChange::undo() {

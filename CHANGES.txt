@@ -1,3 +1,8 @@
+v1.?? [2013-11-??]
+Updated compression code based on exhal v1.10
+    (now several times faster again)
+Added undo & redo commands/keys
+
 v1.00 [2013-09-15]
 Released source under MIT license
 Updated source and build to Qt 5
