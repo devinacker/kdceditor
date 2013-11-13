@@ -18,10 +18,12 @@
 #include "metatile.h"
 #include "graphics.h"
 
+using namespace stuff;
+
 // These tables map halves/edges of some terrain types to other types.
 // This is done when a terrain type (mainly two-way slopes or diagonal slope top/bottom parts)
 // can be drawn using parts of other types.
-const tiletype_e trueLeftTable[KIRBY_GEOM_TYPES] = {
+const stuff::type_e trueLeftTable[KIRBY_GEOM_TYPES] = {
     // nothing, flat, slopes up, slopes down
     nothing, flat, slopeEast, slopeSouthAndWestInner,
     // cardinal slopes
@@ -38,7 +40,7 @@ const tiletype_e trueLeftTable[KIRBY_GEOM_TYPES] = {
     slopeSoutheastFull, slopeNortheastFull, slopeNorthwestFull, slopeSouthwestFull
 };
 
-const tiletype_e trueRightTable[KIRBY_GEOM_TYPES] = {
+const stuff::type_e trueRightTable[KIRBY_GEOM_TYPES] = {
     // nothing, flat, slopes up, slopes down
     nothing, flat, slopeSouth, slopeNorthAndEastInner,
     // cardinal slopes
@@ -55,7 +57,7 @@ const tiletype_e trueRightTable[KIRBY_GEOM_TYPES] = {
     slopeSoutheastFull, slopeNortheastFull, slopeNorthwestFull, slopeSouthwestFull
 };
 
-const tiletype_e trueCenterLeftTable[KIRBY_GEOM_TYPES] = {
+const stuff::type_e trueCenterLeftTable[KIRBY_GEOM_TYPES] = {
     // nothing, flat, slopes up, slopes down
     nothing, flat, slopeSouthAndWestOuter, slopeEast,
     // cardinal slopes
@@ -72,7 +74,7 @@ const tiletype_e trueCenterLeftTable[KIRBY_GEOM_TYPES] = {
     slopeSoutheastFull, slopeNortheastFull, slopeNorthwestFull, slopeSouthwestFull
 };
 
-const tiletype_e trueCenterRightTable[KIRBY_GEOM_TYPES] = {
+const stuff::type_e trueCenterRightTable[KIRBY_GEOM_TYPES] = {
     // nothing, flat, slopes up, slopes down
     nothing, flat, slopeNorthAndEastOuter, slopeSouth,
     // cardinal slopes

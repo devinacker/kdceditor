@@ -6,6 +6,8 @@
 #include "metatile.h"
 #include "graphics.h"
 
+using namespace stuff;
+
 const metatile_t bordersNorth[] {
     {flat, nothing,
         {{0, 0, 0, 0, 0, 0, 0, 0},

@@ -301,7 +301,7 @@ void MainWindow::setUndoRedoActions(bool val) {
   actions that depend on the current level number
 */
 void MainWindow::setLevelChangeActions(bool val) {
-    game_e game = rom.getGame();
+    ROMFile::game_e game = rom.getGame();
 
     ui->action_Previous_Course->setEnabled(val && level >= 8);
     ui->action_Next_Course    ->setEnabled(val && level < (numLevels[game] - 8));
@@ -353,7 +353,7 @@ void MainWindow::openFile() {
 
             fileOpen = true;
 
-            game_e game = rom.getGame();
+            ROMFile::game_e game = rom.getGame();
 
             for (int i = 0; i < numLevels[game]; i++) {
                 levels[i] = loadLevel(rom, i);
@@ -377,7 +377,7 @@ void MainWindow::openFile() {
 
                     // dirty hack due to the fact that music track 0x83 was deleted
                     // in the US/EU version of KDC, and further music tracks shifted down
-                    if (ver == kirby_us && levels[level]->music >= 0x83)
+                    if (ver == ROMFile::kirby_us && levels[level]->music >= 0x83)
                         levels[level]->music++;
                 }
             }
@@ -429,8 +429,8 @@ void MainWindow::saveFile() {
     if (!fileOpen || checkSaveLevel() == QMessageBox::Cancel)
         return;
 
-    game_e game = rom.getGame();
-    if (game == sts) {
+    ROMFile::game_e game = rom.getGame();
+    if (game == ROMFile::sts) {
         QMessageBox::information(this, tr("Save File"),
                                  tr("Saving changes to Special Tee Shot is currently not supported."),
                                  QMessageBox::Ok);
@@ -501,7 +501,7 @@ void MainWindow::saveFile() {
     for (int i = 0; i < numLevels[game]; i++) {
         // dirty hack due to the fact that music track 0x83 was deleted
         // in the US/EU version of KDC, and further music tracks shifted down
-        if (ver == kirby_us && levels[level]->music >= 0x84)
+        if (ver == ROMFile::kirby_us && levels[level]->music >= 0x84)
             rom.writeByte(newMusicAddr[ver] + i, levels[i]->music - 1);
         else
             rom.writeByte(newMusicAddr[ver] + i, levels[i]->music);
@@ -861,7 +861,7 @@ void MainWindow::setLevel(int level) {
     // save changes to the level?
     if (checkSaveLevel() == QMessageBox::Cancel) return;
 
-    game_e game = rom.getGame();
+    ROMFile::game_e game = rom.getGame();
 
     this->level = level;
     currentLevel = *(levels[level]);

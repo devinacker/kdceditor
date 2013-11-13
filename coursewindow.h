@@ -22,7 +22,7 @@ public:
     explicit CourseWindow(QWidget *parent = 0);
     ~CourseWindow();
 
-    int select(int level, game_e game = kirby);
+    int select(int level, ROMFile::game_e game = ROMFile::kirby);
     
 private:
     Ui::CourseWindow *ui;

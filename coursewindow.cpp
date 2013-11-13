@@ -29,7 +29,7 @@ CourseWindow::~CourseWindow()
     delete ui;
 }
 
-int CourseWindow::select(int level, game_e game) {
+int CourseWindow::select(int level, ROMFile::game_e game) {
     // add course names to dropdown
     ui->comboBox->clear();
     for (int i = 0; i < numLevels[game] / 8; i++)

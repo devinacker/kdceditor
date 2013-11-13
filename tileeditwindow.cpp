@@ -12,6 +12,8 @@
 #include "level.h"
 #include "metatile.h"
 
+using namespace stuff;
+
 uint getCheckBox(const QCheckBox *box);
 void setCheckBox(QCheckBox *box, int state);
 
@@ -159,7 +161,7 @@ int TileEditWindow::startEdit(leveldata_t *level, QRect sel) {
   This array maps conveyor belt types to their counterparts for the different slope types.
   Dimension 1 is the belt direction, dimension 2 is the slope direction
 */
-const tiletype_e conveyorMap[4][4] = {
+const stuff::type_e conveyorMap[4][4] = {
 //slope      south          east          north          west
 //beltSouth
             {beltSouthDown, nothing,      beltSouthUp,   nothing},

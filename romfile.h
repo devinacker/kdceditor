@@ -12,25 +12,27 @@
 
 #define BANK_SIZE 0x8000
 
-typedef enum {
-    kirby_jp  = 0,
-    kirby_us  = 1,
-    sts_jp    = 2
-} version_e;
-
-typedef enum {
-    kirby   = 0,
-    sts     = 1
-} game_e;
 
 class ROMFile: public QFile {
 public:
+
+    enum version_e {
+        kirby_jp  = 0,
+        kirby_us  = 1,
+        sts_jp    = 2
+    };
+
+    enum game_e {
+        kirby   = 0,
+        sts     = 1
+    };
+
     ROMFile();
 
     bool         openROM(OpenMode flags);
 
-    game_e    getGame();
-    version_e getVersion();
+    ROMFile::game_e    getGame();
+    ROMFile::ROMFile::version_e getVersion();
 
     uint toAddress(uint offset);
     uint toOffset(uint addr);
@@ -48,8 +50,8 @@ public:
 
 private:
     bool header;
-    game_e game;
-    version_e version;
+    ROMFile::game_e    game;
+    ROMFile::version_e version;
 };
 
 #endif // FILE_H

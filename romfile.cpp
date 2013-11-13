@@ -24,11 +24,11 @@ ROMFile::ROMFile() : QFile(),
     version(kirby_jp)
 {}
 
-game_e ROMFile::getGame() {
+ROMFile::game_e ROMFile::getGame() {
     return game;
 }
 
-version_e ROMFile::getVersion() {
+ROMFile::version_e ROMFile::getVersion() {
     return version;
 }
 
@@ -76,17 +76,17 @@ uint ROMFile::toOffset(uint address) {
   For KDC, this checks for the string "ninten" at various offsets.
   It also determines whether the ROM is headered or not.
 */
-const struct {int address; char string[7]; game_e game;} versions[] = {
+const struct {int address; char string[7]; ROMFile::game_e game;} versions[] = {
     // Kirby Bowl (JP)
-    {0x8ECE, "ninten", kirby},
+    {0x8ECE, "ninten", ROMFile::kirby},
     // Kirby's Dream Course (US/EU)
-    {0x8ECC, "ninten", kirby},
+    {0x8ECC, "ninten", ROMFile::kirby},
 
     // Special Tee Shot (currently debug mode only)
     // checks title of rom (which can and may be changed); find something better
-    {0xFFC0, "\xBD\xCD\xDF\xBC\xAC\xD9", sts},
+    {0xFFC0, "\xBD\xCD\xDF\xBC\xAC\xD9", ROMFile::sts},
 
-    {0, "", kirby}
+    {0, "", ROMFile::kirby}
 };
 
 bool ROMFile::openROM(OpenMode flags) {
@@ -106,7 +106,7 @@ bool ROMFile::openROM(OpenMode flags) {
         readData(versions[i].address, 6, buf);
         if (!memcmp(buf, versions[i].string, 6)) {
             game = versions[i].game;
-            version = (version_e)i;
+            version = (ROMFile::version_e)i;
             return true;
         }
     }

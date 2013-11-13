@@ -26,6 +26,8 @@
 #define CHUNK_SIZE 2048
 #define BIG_CHUNK_SIZE 26624
 
+using namespace stuff;
+
 // number of levels in Kirby's Dream Course and Special Tee Shot
 const int numLevels[] = {28 * 8, 9 * 8};
 
@@ -87,8 +89,8 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     leveldata_t *level = (leveldata_t*)malloc(sizeof(leveldata_t));
     memset((void*)level, 0, sizeof(leveldata_t));
 
-    version_e ver = file.getVersion();
-    game_e    game = file.getGame();
+    ROMFile::version_e ver = file.getVersion();
+    ROMFile::game_e    game = file.getGame();
 
     // load the header
     fflush(stdout);
@@ -97,7 +99,7 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     // writes header pointers and other level data pointers at the same time, so if one succeeds,
     // the rest probably will, and vice-versa.
     bool gotLevel;
-    if (game == kirby)
+    if (game == ROMFile::kirby)
         gotLevel = file.readFromPointer(headerTable[ver] + (num * 3), sizeof(header_t), &level->header);
     else
         gotLevel = true;
@@ -127,7 +129,7 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     // each header field is now stored in its own table. there may be more, fewer,
     // or otherwise different fields than in KDC. based on the differences I've seen
     // so far, i'm almost certain there are different fields)
-    if (game == sts) {
+    if (game == ROMFile::sts) {
         level->header.width  = file.readByte(widthTable + num * 2);
         level->header.length = file.readByte(lengthTable + num * 2);
     }
@@ -178,8 +180,8 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
     uint8_t packed[CHUNK_SIZE], unpacked[CHUNK_SIZE];
     size_t packedSize = 0;
 
-    version_e ver = file.getVersion();
-    game_e    game = file.getGame();
+    ROMFile::version_e ver = file.getVersion();
+    ROMFile::game_e    game = file.getGame();
 
     // level length, width
     int length = level->header.length;
@@ -200,7 +202,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
     level->header.dummy1 = 0xFFFF;
     level->header.dummy2 = 0xFFFF;
 
-    if (game == kirby) {
+    if (game == ROMFile::kirby) {
         addr = file.writeToPointer(headerTable[ver] + 3 * num, addr, sizeof(header_t), &level->header);
     } else {
         // TODO: the rest of the STS level info tables here, too, someday
@@ -332,7 +334,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
 
     // step 8: do clipping table
     // TODO: update clipping table info based on STS expanded format
-    if (game == kirby) {
+    if (game == ROMFile::kirby) {
         size_t clipSize = makeClipTable(level, unpacked);
         packedSize = pack(unpacked, clipSize, packed, 1);
         addr = file.writeToPointer(clippingTable[ver] + 3 * num, addr, packedSize, packed);

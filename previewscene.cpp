@@ -190,7 +190,7 @@ void PreviewScene::refresh(uint16_t (&playfield)[2][384][384]) {
                     // and then adjust for height of sprites
                     int startY = (TILE_SIZE / 4) * (mapHeight + x + y - z + 4) - gfx.height();
                     // move down half a tile's worth if the sprite is on a slope
-                    if (level->tiles[y][x].geometry >= slopes)
+                    if (level->tiles[y][x].geometry >= stuff::slopes)
                         startY += TILE_SIZE / 8;
 
                     painter.drawPixmap(startX, startY,

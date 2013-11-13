@@ -8,7 +8,8 @@
 
 #include "kirby.h"
 
-typedef enum {
+namespace stuff {
+enum type_e {
     nothing = 0,
     wall = -1,
 
@@ -162,10 +163,11 @@ typedef enum {
     startLineEast  = 0xC2,
     kirbyStartLine = 0xC3
 
-} tiletype_e;
+};
+}
 
 typedef struct {
-    tiletype_e type, adjacent;
+    stuff::type_e type, adjacent;
     uint16_t   tiles[8][8];
 } metatile_t;
 
@@ -174,8 +176,8 @@ extern const uint16_t bottomTile[2][8];
 extern const metatile_t metatilesTerrain[];
 extern const metatile_t metatilesObstacles[];
 
-extern const tiletype_e trueCenterLeftTable[];
-extern const tiletype_e trueCenterRightTable[];
+extern const stuff::type_e trueCenterLeftTable[];
+extern const stuff::type_e trueCenterRightTable[];
 
 extern const metatile_t bordersSouth[];
 extern const metatile_t bordersEast[];
