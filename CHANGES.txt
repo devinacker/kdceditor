@@ -1,5 +1,5 @@
 v1.?? [2013-11-??]
-Updated compression code based on exhal v1.10
+Updated compression code based on exhal v1.20
     (now several times faster again)
 Added undo & redo commands/keys
 
