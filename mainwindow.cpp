@@ -761,7 +761,8 @@ void MainWindow::saveCourseToFile() {
 //            if (lev->modified) {
                 info.levelPtr[i] = offset;
                 // generate next pointer values based on size of current level
-                offset += sizeof(header_t) + (lev->header.width * lev->header.length * sizeof(maptile_t));
+//              offset += sizeof(header_t) + (lev->header.width * lev->header.length * sizeof(maptile_t));
+                offset += sizeof(header_t) + (lev->header.width * lev->header.length * 4);
 //            } else info.levelPtr[i] = 0xFFFFFFFF;
         }
 
