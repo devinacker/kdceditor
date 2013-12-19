@@ -1,7 +1,7 @@
 kdceditor
 =========
 
-Kirby's Dream Course / Kirby Bowl level editor version 1.00
+Kirby's Dream Course / Kirby Bowl level editor version 1.10
 
 Here it is, warts and all. After many more months of hard work and laziness than there ever should have been, it's done. For now, anyway.
 
