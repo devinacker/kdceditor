@@ -1,3 +1,6 @@
+v1.10b [2013-12-19]
+Fixed corrupted demo-6holes.kdc
+
 v1.10 [2013-12-18]
 Updated compression code based on exhal v1.20
     (now several times faster again)
