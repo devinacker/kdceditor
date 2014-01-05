@@ -1,6 +1,5 @@
 #include <QtWidgets/QApplication>
 #include "mainwindow.h"
-#include "tileeditwindow.h"
 
 int main(int argc, char *argv[])
 {
