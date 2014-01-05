@@ -182,7 +182,7 @@ size_t ROMFile::readFromPointer(uint addr, uint size, void *buffer) {
 */
 uint ROMFile::writeData(uint addr, uint size, void *buffer) {
     uint offset = toOffset(addr);
-    uint spaceLeft = BANK_SIZE - (offset % BANK_SIZE);
+    uint spaceLeft = BANK_SIZE - (addr % BANK_SIZE);
 
     // move offset forward if there's not enough space left in the bank
     if (size > spaceLeft)
