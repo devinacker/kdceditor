@@ -8,8 +8,11 @@ Interface/misc:
 
 2D view:
  - less bad programmer art
-
+ - rework the 2D view to do most (or all?) rendering via QGraphicsView::drawBackground
+   instead of pointless pixmaps/scene items
+ - info display should depend less on specific font metrics (i have no idea what it looks like
+   on OS X / Linux)
+ 
 3D view:
  - rest of possible bumpers for 2way slopes (sometimes with gaps in corners if necessary)
  - come up with a way to fix the QPixmap -> QImage -> QPixmap bottleneck when flipping 8x8 tiles
-   (this will speed up drawing immensely, but it's already not that slow on most modern machines)
