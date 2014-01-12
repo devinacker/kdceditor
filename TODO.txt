@@ -8,8 +8,6 @@ Interface/misc:
 
 2D view:
  - less bad programmer art
- - info display should depend less on specific font metrics (i have no idea what it looks like
-   on OS X / Linux)
  
 3D view:
  - rest of possible bumpers for 2way slopes (sometimes with gaps in corners if necessary)

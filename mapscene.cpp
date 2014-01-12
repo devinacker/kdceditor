@@ -16,10 +16,11 @@
 #include "tileeditwindow.h"
 #include "graphics.h"
 
-#define MAP_TEXT_OFFSET 8
-#define MAP_TEXT_PAD 2
+#define MAP_TEXT_PAD_H 2
+#define MAP_TEXT_PAD_V 1
 
 const QFont MapScene::infoFont("Consolas", 8);
+const QFontMetrics MapScene::infoFontMetrics(MapScene::infoFont);
 
 const QColor MapScene::infoColor(255, 192, 192, 192);
 const QColor MapScene::infoBackColor(255, 192, 192, 64);
@@ -418,6 +419,8 @@ void MapScene::paintEvent(QPaintEvent *event) {
 
     // assign a painter to the target pixmap
     QPainter painter(this);
+    QString infoText;
+    QRect infoRect;
 
     // slowly blit shit from the tile resource onto the pixmap
     for (int h = 0; h < height; h++) {
@@ -580,27 +583,31 @@ void MapScene::paintEvent(QPaintEvent *event) {
             painter.setFont(MapScene::infoFont);
 
             if (geo) {
-                // draw the tile height in the bottom right corner
-                painter.fillRect((w+1) * TILE_SIZE - 12 - 2 * MAP_TEXT_PAD,
-                                 (h+1) * TILE_SIZE - 8 - 2 * MAP_TEXT_PAD,
-                                 12 + 2 * MAP_TEXT_PAD, 8 + 2 * MAP_TEXT_PAD,
-                                 MapScene::infoColor);
+                infoText = QString("%1").arg(tile->height, 2);
+                infoRect = MapScene::infoFontMetrics.boundingRect(infoText);
 
-                painter.drawText((w+1) * TILE_SIZE - 12 - MAP_TEXT_PAD,
-                                 (h+1) * TILE_SIZE - MAP_TEXT_PAD,
-                                 QString("%1").arg(tile->height, 2));
+                painter.fillRect((w+1) * TILE_SIZE - infoRect.width() - 2 * MAP_TEXT_PAD_H,
+                                 (h+1) * TILE_SIZE - infoRect.height() - MAP_TEXT_PAD_V,
+                                 infoRect.width() + 2 * MAP_TEXT_PAD_H, infoRect.height() + MAP_TEXT_PAD_V,
+                                 MapScene::infoColor);
+                painter.drawText(w * TILE_SIZE + MAP_TEXT_PAD_H - 1, h * TILE_SIZE + MAP_TEXT_PAD_V,
+                                 TILE_SIZE - MAP_TEXT_PAD_H, TILE_SIZE - MAP_TEXT_PAD_V,
+                                 Qt::AlignRight | Qt::AlignBottom,
+                                 infoText);
             }
 
             if (tile->flags.layer) {
-                // draw an indicator for layer 2
-                painter.fillRect((w+1) * TILE_SIZE - 12 - 2 * MAP_TEXT_PAD,
-                                 h * TILE_SIZE,
-                                 12 + 2 * MAP_TEXT_PAD, 8 + 2 * MAP_TEXT_PAD,
-                                 MapScene::layerColor);
+                infoText = "L2";
+                infoRect = MapScene::infoFontMetrics.boundingRect(infoText);
 
-                painter.drawText((w+1) * TILE_SIZE - 12 - MAP_TEXT_PAD,
-                                 h * TILE_SIZE + MAP_TEXT_PAD + 8,
-                                 "L2");
+                painter.fillRect((w+1) * TILE_SIZE - infoRect.width() - 2 * MAP_TEXT_PAD_H,
+                                 h * TILE_SIZE,
+                                 infoRect.width() + 2 * MAP_TEXT_PAD_H, infoRect.height() + MAP_TEXT_PAD_V,
+                                 MapScene::layerColor);
+                painter.drawText(w * TILE_SIZE + MAP_TEXT_PAD_H - 1, h * TILE_SIZE,
+                                 TILE_SIZE - MAP_TEXT_PAD_H, TILE_SIZE - MAP_TEXT_PAD_V,
+                                 Qt::AlignRight | Qt::AlignTop,
+                                 infoText);
             }
         }
     }
@@ -632,15 +639,22 @@ void MapScene::paintEvent(QPaintEvent *event) {
         // only draw bottom part if terrain != 0 (i.e. not empty space)
         if (tile.geometry) {
             // bottom corner: terrain + obstacle
-            painter.fillRect(infoX, infoY + TILE_SIZE - 2 * MAP_TEXT_PAD - MAP_TEXT_OFFSET,
-                             6 * 5 + 2 * MAP_TEXT_PAD, 8 + 2 * MAP_TEXT_PAD,
-                             MapScene::infoColor);
+            infoText = QString("%1 %2")
+                               .arg((uint)tile.geometry, 2, 16, QLatin1Char('0'))
+                               .arg((uint)tile.obstacle, 2, 16, QLatin1Char('0'))
+                               .toUpper();
+            infoRect = MapScene::infoFontMetrics.boundingRect(infoText);
 
-            painter.drawText(infoX + MAP_TEXT_PAD, infoY + TILE_SIZE - MAP_TEXT_PAD,
-                             QString("%1 %2")
-                                     .arg((uint)tile.geometry, 2, 16, QLatin1Char('0'))
-                                     .arg((uint)tile.obstacle, 2, 16, QLatin1Char('0'))
-                                     .toUpper());
+            // for some stupid reason QFontMetrics is making this bounding box 6px too narrow
+            // so i'll just add it back manually (and this willprobably look stupid for any other font settings)
+            painter.fillRect(infoX + 1, infoY + TILE_SIZE - infoRect.height() - MAP_TEXT_PAD_V,
+                             infoRect.width() + 2 * MAP_TEXT_PAD_H + 6, infoRect.height() + MAP_TEXT_PAD_V,
+                             MapScene::infoColor);
+            painter.drawText(infoX + MAP_TEXT_PAD_H, infoY + MAP_TEXT_PAD_V,
+                             TILE_SIZE - MAP_TEXT_PAD_H, TILE_SIZE - MAP_TEXT_PAD_V,
+                             Qt::AlignLeft | Qt::AlignBottom,
+                             infoText);
+
         }
     }
 

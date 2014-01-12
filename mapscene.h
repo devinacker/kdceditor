@@ -9,7 +9,7 @@
 #include <QWidget>
 #include <QMouseEvent>
 #include <QtWidgets/QUndoStack>
-
+#include <QFontMetrics>
 #include "level.h"
 
 // subclass of QGraphicsScene used to draw the 2d map and handle mouse/kb events for it
@@ -21,6 +21,7 @@ private:
     static const QColor selectionColor, selectionBorder;
     static const QColor layerColor;
     static const QFont infoFont;
+    static const QFontMetrics infoFontMetrics;
 
     int tileX, tileY;
     int selX, selY, selLength, selWidth;
