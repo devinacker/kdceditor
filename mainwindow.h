@@ -7,7 +7,6 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
-
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QLabel>
 #include <QSettings>

@@ -6,15 +6,14 @@
 #ifndef MAPSCENE_H
 #define MAPSCENE_H
 
-#include <QtWidgets/QGraphicsScene>
-#include <QtWidgets/QGraphicsPixmapItem>
-#include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <QWidget>
+#include <QMouseEvent>
 #include <QtWidgets/QUndoStack>
 
 #include "level.h"
 
 // subclass of QGraphicsScene used to draw the 2d map and handle mouse/kb events for it
-class MapScene : public QGraphicsScene {
+class MapScene : public QWidget {
     Q_OBJECT
 
 private:
@@ -34,25 +33,19 @@ private:
 
     leveldata_t *level;
 
-    QGraphicsPixmapItem *infoItem, *selectionItem;
+    //QGraphicsPixmapItem *infoItem, *selectionItem;
 
     QPixmap tiles, kirby, enemies, traps, bounce, movers, rotate,
             conveyor, bumpers, water, warps, gordo, switches, dedede,
             unknown;
 
     void copyTiles(bool cut);
-    void showTileInfo(QGraphicsSceneMouseEvent *event);
-    void beginSelection(QGraphicsSceneMouseEvent *event);
-    void updateSelection(QGraphicsSceneMouseEvent *event = NULL);
-    void removeInfoItem();
-    void cancelSelection(bool perma);
-    void drawLevelMap();
-
-private slots:
-    void erase();
+    void showTileInfo(QMouseEvent *event);
+    void beginSelection(QMouseEvent *event);
+    void updateSelection(QMouseEvent *event = NULL);
 
 public:
-    MapScene(QObject *parent = 0, leveldata_t *currentLevel = 0);
+    explicit MapScene(QWidget *parent = 0, leveldata_t *currentLevel = 0);
 
     bool canUndo() const;
     bool canRedo() const;
@@ -79,10 +72,11 @@ signals:
     void edited();
 
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event);
 };
 
 #endif // MAPSCENE_H

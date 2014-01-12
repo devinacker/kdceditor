@@ -58,10 +58,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     fileName   = settings->value("MainWindow/fileName", "").toString();
 
-    ui->graphicsView->setScene(scene);
-    // enable mouse tracking for graphics view
-    ui->graphicsView->setMouseTracking(true);
-
+    ui->scrollArea->setBackgroundRole(QPalette::Mid);
+    ui->scrollArea->setWidget(scene);
     // remove margins around map view and other stuff
     this->centralWidget()->layout()->setContentsMargins(0,0,0,0);
 
@@ -623,6 +621,7 @@ int MainWindow::closeFile() {
     setOpenFileActions(false);
     fileOpen = false;
     updateTitle();
+    update();
 
     return 0;
 }
@@ -875,7 +874,6 @@ void MainWindow::setLevel(int level) {
     scene->refresh();
     scene->clearStack();
     setUndoRedoActions(false);
-    ui->graphicsView->update();
 
     previewWin->refresh();
 

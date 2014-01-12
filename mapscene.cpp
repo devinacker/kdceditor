@@ -32,16 +32,14 @@ const QColor MapScene::layerColor(0, 192, 224, 192);
 /*
   Overridden constructor which inits some scene info
  */
-MapScene::MapScene(QObject *parent, leveldata_t *currentLevel)
-    : QGraphicsScene(parent),
+MapScene::MapScene(QWidget *parent, leveldata_t *currentLevel)
+    : QWidget(parent),
 
       tileX(-1), tileY(-1),
       selLength(0), selWidth(0), selecting(false),
       copyWidth(0), copyLength(0),
       stack(this),
-      level(currentLevel),
-      infoItem(NULL), selectionItem(NULL)
-
+      level(currentLevel)
 {
     bounce.load  (":images/bounce.png");
     bumpers.load (":images/bumpers.png");
@@ -59,17 +57,10 @@ MapScene::MapScene(QObject *parent, leveldata_t *currentLevel)
     switches.load(":images/switches.png");
     unknown.load (":images/unknown.png");
 
+    this->setMouseTracking(true);
+
     QObject::connect(this, SIGNAL(edited()),
                      this, SLOT(refresh()));
-}
-
-/*
-  clear the scene AND erase the item pointers
-*/
-void MapScene::erase() {
-    clear();
-    infoItem = NULL;
-    selectionItem = NULL;
 }
 
 /*
@@ -89,7 +80,7 @@ void MapScene::editTiles() {
 
     // redraw the map scene with the new properties
     emit edited();
-    updateSelection();
+    update();
 }
 
 /*
@@ -98,48 +89,44 @@ void MapScene::editTiles() {
 void MapScene::refresh() {
     tileX = -1;
     tileY = -1;
-    drawLevelMap();
-    removeInfoItem();
-    updateSelection();
+    setMinimumSize(level->header.width * TILE_SIZE, level->header.length * TILE_SIZE);
+    updateGeometry();
+    update();
 }
 
 /*
   Handle when the mouse is pressed on the scene
 */
-void MapScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    // if the level is not being displayed, don't do anything
-    if (!isActive()) return;
+void MapScene::mousePressEvent(QMouseEvent *event) {
+    if (level->header.width == 0 || level->header.length == 0)
+        return;
 
     // left button: start or continue selection
     // right button: cancel selection
     if (event->buttons() & Qt::LeftButton) {
         beginSelection(event);
 
-        event->accept();
-
     } else if (event->buttons() & Qt::RightButton) {
-        cancelSelection(true);
-
-        event->accept();
+        cancelSelection();
     }
+    update();
 }
 
 /*
   Handle when a double-click occurs (used to start the tile edit window)
 */
-void MapScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
-    if (isActive()) {
-        editTiles();
-        emit doubleClicked();
+void MapScene::mouseDoubleClickEvent(QMouseEvent *event) {
+    editTiles();
+    emit doubleClicked();
 
-        event->accept();
-    }
+    event->accept();
+    update();
 }
 
 /*
   Handle when the left mouse button is released
 */
-void MapScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+void MapScene::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         selecting = false;
 
@@ -155,21 +142,16 @@ void MapScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
         }
 
         event->accept();
+        update();
     }
 }
 
 /*
   Handle when the mouse is moved over the scene
  */
-void MapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-    // if inactive, don't handle mouse moves
-    if (!isActive()) return;
-
-    // behave differently based on left mouse button status
+void MapScene::mouseMoveEvent(QMouseEvent *event) {
     if (selecting && event->buttons() & Qt::LeftButton) {
-        // left button down: destroy tile info pixmap
-        // and generate/show selection
-        removeInfoItem();
+        // left button down: generate/show selection
         updateSelection(event);
     } else {
         showTileInfo(event);
@@ -261,7 +243,6 @@ void MapScene::copyTiles(bool cut = false) {
         emit edited();
     }
 
-    updateSelection();
     emit statusMessage(QString("%1 (%2, %3) to (%4, %5)")
                        .arg(cut ? "Cut" : "Copied")
                        .arg(selX).arg(selY)
@@ -286,7 +267,6 @@ void MapScene::paste() {
 
     stack.push(edit);
     emit edited();
-    updateSelection();
 
     emit statusMessage(QString("Pasted (%1, %2) to (%3, %4)")
                        .arg(selX).arg(selY)
@@ -310,7 +290,6 @@ void MapScene::deleteTiles() {
 
     stack.push(edit);
     emit edited();
-    updateSelection();
 
     emit statusMessage(QString("Deleted (%1, %2) to (%3, %4)")
                        .arg(selX).arg(selY)
@@ -322,11 +301,11 @@ void MapScene::deleteTiles() {
   Start a new selection on the map scene.
   Called when the mouse is clicked outside of any current selection.
 */
-void MapScene::beginSelection(QGraphicsSceneMouseEvent *event) {
-    QPointF pos = event->scenePos();
+void MapScene::beginSelection(QMouseEvent *event) {
+    QPointF pos = event->pos();
 
-    int x = pos.x() / TILE_SIZE;
-    int y = pos.y() / TILE_SIZE;
+    int x = floor(pos.x() / TILE_SIZE);
+    int y = floor(pos.y() / TILE_SIZE);
 
     // ignore invalid click positions
     // (use the floating point X coord to avoid roundoff stupidness)
@@ -339,8 +318,6 @@ void MapScene::beginSelection(QGraphicsSceneMouseEvent *event) {
         selecting = true;
         selX = x;
         selY = y;
-        selWidth = 1;
-        selLength = 1;
         updateSelection(event);
     }
 }
@@ -349,49 +326,33 @@ void MapScene::beginSelection(QGraphicsSceneMouseEvent *event) {
   Update the selected range of map tiles.
   Called when the mouse is over the MapScene with the left button held down.
 */
-void MapScene::updateSelection(QGraphicsSceneMouseEvent *event) {
+void MapScene::updateSelection(QMouseEvent *event) {
     int x = selX;
     int y = selY;
 
-    // if event is not null, this was triggered by a mouse action
-    // and so the selection area should be updated
-    if (event) {
-        QPointF pos = event->scenePos();
+    QPointF pos = event->pos();
 
-        x = pos.x() / TILE_SIZE;
-        y = pos.y() / TILE_SIZE;
+    x = floor(pos.x() / TILE_SIZE);
+    y = floor(pos.y() / TILE_SIZE);
 
-        // ignore invalid mouseover/click positions
-        // (use the floating point X coord to avoid roundoff stupidness)
-        if (x >= level->header.width || y >= level->header.length
-                || pos.x() < 0 || y < 0)
-            return;
+    // ignore invalid mouseover/click positions
+    // (use the floating point X coord to avoid roundoff stupidness)
+    if (x >= level->header.width || y >= level->header.length
+            || x < 0 || y < 0)
+        return;
 
-        // update the selection size
-        if (x >= selX)
-            selWidth = x - selX + 1;
-        else
-            selWidth = x - selX - 1;
-        if (y >= selY)
-            selLength = y - selY + 1;
-        else
-            selLength = y - selY - 1;
-    }
-
-    if (selWidth == 0 || selLength == 0) return;
-
-    // temporarily destroy the old selection pixmap
-    cancelSelection(false);
-
-    QRect selArea(0, 0, abs(selWidth) * TILE_SIZE, abs(selLength) * TILE_SIZE);
-    QPixmap selPixmap(selArea.width(), selArea.height());
-    selPixmap.fill(selectionColor);
+    // update the selection size
+    if (x >= selX)
+        selWidth = x - selX + 1;
+    else
+        selWidth = x - selX - 1;
+    if (y >= selY)
+        selLength = y - selY + 1;
+    else
+        selLength = y - selY - 1;
 
     int top = std::min(y, selY);
     int left = std::min(x, selX);
-
-    selectionItem = addPixmap(selPixmap);
-    selectionItem->setOffset(left * TILE_SIZE, top * TILE_SIZE);
 
     if (event)
         emit statusMessage(QString("Selected (%1, %2) to (%3, %4)")
@@ -401,138 +362,62 @@ void MapScene::updateSelection(QGraphicsSceneMouseEvent *event) {
 
     // also, pass the mouseover coords to the main window
     emit mouseOverTile(x, y);
+
+    update();
 }
 
 /*
   Display information about a map tile being hovered over.
   Called when the mouse is over the MapScene without the left button held down.
 */
-void MapScene::showTileInfo(QGraphicsSceneMouseEvent *event) {
-    QPointF pos = event->scenePos();
+void MapScene::showTileInfo(QMouseEvent *event) {
+    if (level->header.length == 0 || level->header.width == 0)
+        return;
+
+    QPointF pos = event->pos();
     // if hte mouse is moved onto a different tile, erase the old one
     // and draw the new one
-    if ((pos.x() / TILE_SIZE) != tileX || (pos.y() / TILE_SIZE) != tileY) {
-        tileX = pos.x() / TILE_SIZE;
-        tileY = pos.y() / TILE_SIZE;
+    if (floor(pos.x() / TILE_SIZE) != tileX || floor(pos.y() / TILE_SIZE) != tileY) {
+        tileX = floor(pos.x() / TILE_SIZE);
+        tileY = floor(pos.y() / TILE_SIZE);
 
-        removeInfoItem();
+        maptile_t tile = level->tiles[tileY][tileX];
+        // show tile contents on the status bar
+        QString stat(QString("(%1,%2,%3)").arg(tileX).arg(tileY).arg(tile.height));
+        try {
+            stat.append(QString(" %1").arg(kirbyGeometry.at(tile.geometry)));
 
-        // brand new pixmap
-        QPixmap infoPixmap(TILE_SIZE, TILE_SIZE);
-        infoPixmap.fill(QColor(0,0,0,0));
+            if (tile.obstacle)
+                stat.append(QString(" / %1").arg(kirbyObstacles.at(tile.obstacle)));
+        } catch (const std::out_of_range &dummy) {}
 
-        // ignore invalid mouseover positions
-        // (use the floating point X coord to avoid roundoff stupidness)
-        if (tileX < level->header.width && tileY < level->header.length
-                && pos.x() >= 0 && tileY >= 0) {
-            QPainter painter(&infoPixmap);
-
-            // render background
-            painter.fillRect(0, 0, TILE_SIZE, TILE_SIZE,
-                             MapScene::infoBackColor);
-
-            // render tile info
-            painter.setFont(MapScene::infoFont);
-            maptile_t tile = level->tiles[tileY][tileX];
-
-            // only draw bottom part if terrain != 0 (i.e. not empty space)
-            if (tile.geometry) {
-                // bottom corner: terrain + obstacle
-                painter.fillRect(0, TILE_SIZE - 2 * MAP_TEXT_PAD - MAP_TEXT_OFFSET,
-                                 6 * 5 + 2 * MAP_TEXT_PAD, 8 + 2 * MAP_TEXT_PAD,
-                                 MapScene::infoColor);
-
-                painter.drawText(MAP_TEXT_PAD, TILE_SIZE - MAP_TEXT_PAD,
-                                 QString("%1 %2")
-                                         .arg((uint)tile.geometry, 2, 16, QLatin1Char('0'))
-                                         .arg((uint)tile.obstacle, 2, 16, QLatin1Char('0'))
-                                         .toUpper());
-            }
-
-            // show tile contents on the status bar
-            QString stat(QString("(%1,%2,%3)").arg(tileX).arg(tileY).arg(tile.height));
-            try {
-                stat.append(QString(" %1").arg(kirbyGeometry.at(tile.geometry)));
-
-                if (tile.obstacle)
-                    stat.append(QString(" / %1").arg(kirbyObstacles.at(tile.obstacle)));
-            } catch (const std::out_of_range &dummy) {}
-
-            emit statusMessage(stat);
-        }
-
-        infoItem = addPixmap(infoPixmap);
-        infoItem->setOffset(tileX * TILE_SIZE, tileY * TILE_SIZE);
+        emit statusMessage(stat);
 
         // also, pass the mouseover coords to the main window
         emit mouseOverTile(tileX, tileY);
     }
+    update();
 }
 
-/*
-  Remove the selection pixmap from the scene.
-  if "perma" is true, the selection rectangle is also reset.
-*/
-
-// public version used to deselect when changing levels
 void MapScene::cancelSelection() {
-    cancelSelection(true);
+    selWidth = 0;
+    selLength = 0;
+    selX = 0;
+    selY = 0;
+    update();
 }
 
-void MapScene::cancelSelection(bool perma) {
-    if (perma) {
-        selWidth = 0;
-        selLength = 0;
-        selX = 0;
-        selY = 0;
-    }
-
-    if (selectionItem) {
-        removeItem(selectionItem);
-        delete selectionItem;
-        selectionItem = NULL;
-    }
-}
-
-void MapScene::removeInfoItem() {
-    // infoItem is no longer valid so kill it
-    if (infoItem) {
-        removeItem(infoItem);
-        delete infoItem;
-        infoItem = NULL;
-    }
-}
-
-void MapScene::drawLevelMap() {
-    // reset the scene (remove all members)
-    erase();
-
-    // if level is null , minimize the scene and return
-    if (!level) {
-        setSceneRect(0, 0, 0, 0);
-        return;
-    }
-
+void MapScene::paintEvent(QPaintEvent *event) {
     int width = level->header.width;
     int height = level->header.length;
 
-    // set the pixmap and scene size based on the level's size
-    QPixmap pixmap(width * TILE_SIZE, height * TILE_SIZE);
-    pixmap.fill(QColor(128, 128, 128));
-
-    setSceneRect(0, 0, width * TILE_SIZE, height * TILE_SIZE);
-
     // no width/height = don't draw anything
     if (width + height == 0) {
-        addPixmap(pixmap);
-        update();
         return;
     }
 
     // assign a painter to the target pixmap
-    QPainter painter;
-    //if (width + height)
-        painter.begin(&pixmap);
+    QPainter painter(this);
 
     // slowly blit shit from the tile resource onto the pixmap
     for (int h = 0; h < height; h++) {
@@ -726,10 +611,43 @@ void MapScene::drawLevelMap() {
     for (int w = TILE_SIZE; w < width * TILE_SIZE; w += TILE_SIZE)
         painter.drawLine(w, 0, w, height * TILE_SIZE);
 
-    // put the new finished pixmap into the scene
-    //if (width + height > 0)
-        painter.end();
+    // ignore invalid mouseover positions
+    // (use the floating point X coord to avoid roundoff stupidness)
+    if (tileX < level->header.width && tileY < level->header.length
+           && tileX >= 0 && tileY >= 0) {
 
-    addPixmap(pixmap);
-    update();
+        uint infoX = tileX * TILE_SIZE;
+        uint infoY = tileY * TILE_SIZE;
+
+        // render background
+        painter.fillRect(infoX, infoY, TILE_SIZE, TILE_SIZE,
+                         MapScene::infoBackColor);
+
+        // render tile info
+        painter.setFont(MapScene::infoFont);
+        maptile_t tile = level->tiles[tileY][tileX];
+
+        // only draw bottom part if terrain != 0 (i.e. not empty space)
+        if (tile.geometry) {
+            // bottom corner: terrain + obstacle
+            painter.fillRect(infoX, infoY + TILE_SIZE - 2 * MAP_TEXT_PAD - MAP_TEXT_OFFSET,
+                             6 * 5 + 2 * MAP_TEXT_PAD, 8 + 2 * MAP_TEXT_PAD,
+                             MapScene::infoColor);
+
+            painter.drawText(infoX + MAP_TEXT_PAD, infoY + TILE_SIZE - MAP_TEXT_PAD,
+                             QString("%1 %2")
+                                     .arg((uint)tile.geometry, 2, 16, QLatin1Char('0'))
+                                     .arg((uint)tile.obstacle, 2, 16, QLatin1Char('0'))
+                                     .toUpper());
+        }
+    }
+
+    // draw selection
+    if (selWidth != 0 && selLength != 0) {
+        // account for selections in either negative direction
+        int selLeft = qMin(selX, selX + selWidth + 1);
+        int selTop  = qMin(selY, selY + selLength + 1);
+        QRect selArea(selLeft * TILE_SIZE, selTop * TILE_SIZE, abs(selWidth) * TILE_SIZE, abs(selLength) * TILE_SIZE);
+        painter.fillRect(selArea, MapScene::selectionColor);
+    }
 }
