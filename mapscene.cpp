@@ -610,6 +610,8 @@ void MapScene::paintEvent(QPaintEvent *event) {
         painter.drawLine(0, h, width * TILE_SIZE, h);
     for (int w = TILE_SIZE; w < width * TILE_SIZE; w += TILE_SIZE)
         painter.drawLine(w, 0, w, height * TILE_SIZE);
+    painter.setPen(Qt::black);
+    painter.drawRect(0, 0, width * TILE_SIZE, height * TILE_SIZE);
 
     // ignore invalid mouseover positions
     // (use the floating point X coord to avoid roundoff stupidness)
