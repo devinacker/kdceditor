@@ -1,4 +1,4 @@
-v1.11 [2014-01-??]
+v1.11 [2014-01-13]
 Fixed possible data corruption when saving levels to headered ROMs
 Heavily rewrote 2D map display (including better handling of font metrics)
 Tweaked compression code again (just slightly faster, probably the last change)
