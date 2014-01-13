@@ -19,55 +19,55 @@ TARGET = KDCEditor
 TEMPLATE = app
 
 # OS-specific metadata and stuff
-win32:RC_FILE = windows.rc
+win32:RC_FILE = src/windows.rc
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    tileeditwindow.cpp \
-    compress.c \
-    level.cpp \
-    kirby.cpp \
-    mapscene.cpp \
-    previewwindow.cpp \
-    propertieswindow.cpp \
-    romfile.cpp \
-    metatile.cpp \
-    metatile_terrain.cpp \
-    metatile_borders.cpp \
-    metatile_obstacles.cpp \
-    coursewindow.cpp \
-    previewscene.cpp \
-    mapchange.cpp
+SOURCES += src/main.cpp\
+    src/mainwindow.cpp \
+    src/tileeditwindow.cpp \
+    src/compress.c \
+    src/level.cpp \
+    src/kirby.cpp \
+    src/mapscene.cpp \
+    src/previewwindow.cpp \
+    src/propertieswindow.cpp \
+    src/romfile.cpp \
+    src/metatile.cpp \
+    src/metatile_terrain.cpp \
+    src/metatile_borders.cpp \
+    src/metatile_obstacles.cpp \
+    src/coursewindow.cpp \
+    src/previewscene.cpp \
+    src/mapchange.cpp
 
-HEADERS  += mainwindow.h \
-    tileeditwindow.h \
-    compress.h \
-    level.h \
-    kirby.h \
-    mapscene.h \
-    graphics.h \
-    previewwindow.h \
-    propertieswindow.h \
-    romfile.h \
-    metatile.h \
-    coursewindow.h \
-    version.h \
-    previewscene.h \
-    mapchange.h
+HEADERS  += src/mainwindow.h \
+    src/tileeditwindow.h \
+    src/compress.h \
+    src/level.h \
+    src/kirby.h \
+    src/mapscene.h \
+    src/graphics.h \
+    src/previewwindow.h \
+    src/propertieswindow.h \
+    src/romfile.h \
+    src/metatile.h \
+    src/coursewindow.h \
+    src/version.h \
+    src/previewscene.h \
+    src/mapchange.h
 
-FORMS    += mainwindow.ui \
-    tileeditwindow.ui \
-    previewwindow.ui \
-    propertieswindow.ui \
-    coursewindow.ui
+FORMS    += src/mainwindow.ui \
+    src/tileeditwindow.ui \
+    src/previewwindow.ui \
+    src/propertieswindow.ui \
+    src/coursewindow.ui
 
 RESOURCES += \
-    images.qrc \
-    icons.qrc
+    src/images.qrc \
+    src/icons.qrc
 
 OTHER_FILES += \
     CHANGES.txt \
     README.txt \
-    TODO.txt \
-    coursefiles.txt \
-    windows.rc
+    src/TODO.txt \
+    src/coursefiles.txt \
+    src/windows.rc
