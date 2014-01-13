@@ -1,3 +1,8 @@
+v1.11 [2014-01-??]
+Fixed possible data corruption when saving levels to headered ROMs
+Heavily rewrote 2D map display (including better handling of font metrics)
+Tweaked compression code again (just slightly faster, probably the last change)
+
 v1.10b [2013-12-19]
 Fixed corrupted demo-6holes.kdc
 

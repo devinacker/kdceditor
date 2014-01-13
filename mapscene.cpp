@@ -422,9 +422,11 @@ void MapScene::paintEvent(QPaintEvent *event) {
     QString infoText;
     QRect infoRect;
 
+    QRect rect = event->rect();
+
     // slowly blit shit from the tile resource onto the pixmap
-    for (int h = 0; h < height; h++) {
-        for (int w = 0; w < width; w++) {
+    for (int h = rect.top() / TILE_SIZE; h <= rect.bottom() / TILE_SIZE; h++) {
+        for (int w = rect.left() / TILE_SIZE; w <= rect.right() / TILE_SIZE; w++) {
             maptile_t *tile = &level->tiles[h][w];
             int geo = tile->geometry;
             if (geo) {
