@@ -81,7 +81,6 @@ void MapScene::editTiles() {
 
     // redraw the map scene with the new properties
     emit edited();
-    update();
 }
 
 /*
@@ -426,7 +425,7 @@ void MapScene::paintEvent(QPaintEvent *event) {
 
     // slowly blit shit from the tile resource onto the pixmap
     for (int h = rect.top() / TILE_SIZE; h <= rect.bottom() / TILE_SIZE; h++) {
-        for (int w = rect.left() / TILE_SIZE; w <= rect.right() / TILE_SIZE; w++) {
+        for (int w = rect.left() / TILE_SIZE; w < rect.right() / TILE_SIZE; w++) {
             maptile_t *tile = &level->tiles[h][w];
             int geo = tile->geometry;
             if (geo) {
