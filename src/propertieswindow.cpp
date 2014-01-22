@@ -66,10 +66,8 @@ void PropertiesWindow::startEdit(leveldata_t *level,
 
     // set height and width values
     ui->spinBox_Length->setValue(level->header.length);
-    setMaxLevelWidth(level->header.length);
 
     ui->spinBox_Width ->setValue(level->header.width);
-    setMaxLevelLength(level->header.width);
 
     // set BG and FG stuff
     ui->comboBox_Background->setCurrentIndex(*bg);
