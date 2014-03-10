@@ -37,12 +37,12 @@ public:
     uint toAddress(uint offset);
     uint toOffset(uint addr);
 
-    size_t       readData(uint addr, uint size, void *buffer);
+    size_t       readBytes(uint addr, uint size, void *buffer);
     uint8_t      readByte(uint addr);
     uint16_t     readInt16(uint addr);
     uint32_t     readInt32(uint addr);
     size_t       readFromPointer(uint addr, uint size, void *buffer);
-    uint writeData(uint addr, uint size, void *buffer);
+    uint writeBytes(uint addr, uint size, void *buffer);
     uint writeByte(uint addr, uint8_t data);
     uint writeInt16(uint addr, uint16_t data);
     uint writeInt32(uint addr, uint32_t data);

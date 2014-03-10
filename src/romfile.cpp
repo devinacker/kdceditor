@@ -103,7 +103,7 @@ bool ROMFile::openROM(OpenMode flags) {
         if (!debug && versions[i].game == sts)
             continue;
 
-        readData(versions[i].address, 6, buf);
+        readBytes(versions[i].address, 6, buf);
         if (!memcmp(buf, versions[i].string, 6)) {
             game = versions[i].game;
             version = (ROMFile::version_e)i;
@@ -126,7 +126,7 @@ bool ROMFile::openROM(OpenMode flags) {
   Returns the size of the data read from the file, or 0 if the read was
   unsuccessful.
 */
-size_t ROMFile::readData(uint addr, uint size, void *buffer) {
+size_t ROMFile::readBytes(uint addr, uint size, void *buffer) {
     if (!size) {
         char packed[DATA_SIZE];
         this->seek(toOffset(addr));
@@ -140,19 +140,19 @@ size_t ROMFile::readData(uint addr, uint size, void *buffer) {
 
 uint8_t ROMFile::readByte(uint addr) {
     uint8_t data;
-    readData(addr, 1, &data);
+    readBytes(addr, 1, &data);
     return data;
 }
 
 uint16_t ROMFile::readInt16(uint addr) {
     uint16_t data;
-    readData(addr, 2, &data);
+    readBytes(addr, 2, &data);
     return data;
 }
 
 uint32_t ROMFile::readInt32(uint addr) {
     uint32_t data;
-    readData(addr, 2, &data);
+    readBytes(addr, 2, &data);
     return data;
 }
 
@@ -170,7 +170,7 @@ size_t ROMFile::readFromPointer(uint addr, uint size, void *buffer) {
     pointer &= 0x00FFFFFF;
 
     // then, read from where it points
-    return readData(pointer, size, buffer);
+    return readBytes(pointer, size, buffer);
 }
 
 /*
@@ -180,7 +180,7 @@ size_t ROMFile::readFromPointer(uint addr, uint size, void *buffer) {
 
   Returns the next available address to write data to.
 */
-uint ROMFile::writeData(uint addr, uint size, void *buffer) {
+uint ROMFile::writeBytes(uint addr, uint size, void *buffer) {
     uint offset = toOffset(addr);
     uint spaceLeft = BANK_SIZE - (addr % BANK_SIZE);
 
@@ -197,15 +197,15 @@ uint ROMFile::writeData(uint addr, uint size, void *buffer) {
 }
 
 uint ROMFile::writeByte(uint addr, uint8_t data) {
-    return writeData(addr, 1, &data);
+    return writeBytes(addr, 1, &data);
 }
 
 uint ROMFile::writeInt16(uint addr, uint16_t data) {
-    return writeData(addr, 2, &data);
+    return writeBytes(addr, 2, &data);
 }
 
 uint ROMFile::writeInt32(uint addr, uint32_t data) {
-    return writeData(addr, 4, &data);
+    return writeBytes(addr, 4, &data);
 }
 
 /*
@@ -217,7 +217,7 @@ uint ROMFile::writeInt32(uint addr, uint32_t data) {
 uint ROMFile::writeToPointer(uint pointer, uint addr,
                             uint size, void *buffer) {
     // write the data
-    addr = writeData(addr, size, buffer);
+    addr = writeBytes(addr, size, buffer);
 
     // write the data pointer
     // (do this AFTER data is written in case writeData needs to move to the next

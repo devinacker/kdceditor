@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdlib>
+#include <cmath>
 #include "kirby.h"
 #include "level.h"
 #include "mainwindow.h"

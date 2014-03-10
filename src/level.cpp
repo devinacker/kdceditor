@@ -143,7 +143,7 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     // if the level data begins in the expanded ROM area, mark it modified
     // (so it will be saved correctly)
     uint firstPointer = 0;
-    file.readData(terrainTable[ver] + (num * 3), 3, &firstPointer);
+    file.readBytes(terrainTable[ver] + (num * 3), 3, &firstPointer);
     if (firstPointer >= newDataAddress[ver])
         level->modified = true;
 

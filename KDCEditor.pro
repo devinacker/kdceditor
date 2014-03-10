@@ -10,16 +10,17 @@
 QT       += core widgets
 
 QMAKE_CFLAGS += -std=c99
-
-# Use the latter, if your compiler supports it
-#QMAKE_CXXFLAGS += -std=c++0x -U__STRICT_ANSI__
 QMAKE_CXXFLAGS += -std=c++11
 
 TARGET = KDCEditor
 TEMPLATE = app
+CONFIG += c++11
 
 # OS-specific metadata and stuff
 win32:RC_FILE = src/windows.rc
+
+# build on OS X with xcode/clang and libc++
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
 
 SOURCES += src/main.cpp\
     src/mainwindow.cpp \
