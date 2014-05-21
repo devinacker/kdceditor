@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->scrollArea->setBackgroundRole(QPalette::Mid);
     ui->scrollArea->setWidget(scene);
+    ui->scrollArea->setAlignment(Qt::AlignCenter);
     // remove margins around map view and other stuff
     this->centralWidget()->layout()->setContentsMargins(0,0,0,0);
 
