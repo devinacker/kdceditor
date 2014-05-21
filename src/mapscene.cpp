@@ -90,7 +90,8 @@ void MapScene::editTiles() {
 void MapScene::refresh() {
     tileX = -1;
     tileY = -1;
-    setMinimumSize(level->header.width * TILE_SIZE, level->header.length * TILE_SIZE);
+    setMinimumSize(level->header.width * TILE_SIZE + 1, level->header.length * TILE_SIZE + 1);
+    setMaximumSize(this->minimumSize());
     updateGeometry();
     update();
 }
