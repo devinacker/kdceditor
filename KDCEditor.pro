@@ -68,7 +68,7 @@ RESOURCES += \
 
 OTHER_FILES += \
     CHANGES.txt \
-    README.txt \
+    README.md \
     src/TODO.txt \
     src/coursefiles.txt \
     src/windows.rc
