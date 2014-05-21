@@ -104,7 +104,18 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     else
         gotLevel = true;
 
-    if (!gotLevel) {
+    // if this is Special Tee Shot, grab the level length and width from the tables
+    // (note, because STS support is obviously unfinished:
+    // each header field is now stored in its own table. there may be more, fewer,
+    // or otherwise different fields than in KDC. based on the differences I've seen
+    // so far, i'm almost certain there are different fields)
+    if (game == ROMFile::sts) {
+        level->header.width  = file.readByte(widthTable + num * 2);
+        level->header.length = file.readByte(lengthTable + num * 2);
+    }
+
+    if (!gotLevel
+        || level->header.width * level->header.length > MAX_2D_AREA) {
         QMessageBox::StandardButton button = QMessageBox::warning(0,
                                               QString("Error"),
                                               QString("Unable to load level %1-%2. The ROM may be corrupted.\n\nContinue loading ROM?")
@@ -124,21 +135,11 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
         return level;
     }
 
-    // if this is Special Tee Shot, grab the level length and width from the tables
-    // (note, because STS support is obviously unfinished:
-    // each header field is now stored in its own table. there may be more, fewer,
-    // or otherwise different fields than in KDC. based on the differences I've seen
-    // so far, i'm almost certain there are different fields)
-    if (game == ROMFile::sts) {
-        level->header.width  = file.readByte(widthTable + num * 2);
-        level->header.length = file.readByte(lengthTable + num * 2);
-    }
-
     uint8_t buffer[4][CHUNK_SIZE] = {{0}};
 
     // read chunk buffers
-    int width = level->header.width;
-    int length = level->header.length;
+    uint width = level->header.width;
+    uint length = level->header.length;
 
     // if the level data begins in the expanded ROM area, mark it modified
     // (so it will be saved correctly)

@@ -689,12 +689,27 @@ void MainWindow::loadCourseFromFile() {
             file.seek(info.levelPtr[i]);
 
             // load level header
-            file.read((char*)&(lev->header), sizeof(header_t));
+            header_t tempHeader;
+            file.read((char*)&tempHeader, sizeof(header_t));
+
+            if (tempHeader.width * tempHeader.length > MAX_2D_AREA) {
+                QMessageBox::StandardButton button = QMessageBox::warning(0,
+                                                      QString("Error"),
+                                                      QString("Unable to load level %1 due to an invalid level size. The course may be corrupted.\n\nContinue loading?")
+                                                      .arg(i + 1),
+                                                      QMessageBox::Yes | QMessageBox::No);
+
+                if (button == QMessageBox::No) {
+                    return;
+                }
+
+                continue;
+            }
+
+            lev->header = tempHeader;
 
             // load tile data
             for (int y = 0; y < lev->header.length; y++) {
-                // don't do this anymore since sizeof(maptile_t) is unreliable
-//              file.read((char*)&(lev->tiles[y][0]), lev->header.width * sizeof(maptile_t));
                 for (int x = 0; x < lev->header.width; x++) {
                     file.read((char*)&(lev->tiles[y][x].geometry), 1);
                     file.read((char*)&(lev->tiles[y][x].obstacle), 1);
@@ -780,8 +795,6 @@ void MainWindow::saveCourseToFile() {
 
             // save tile data
             for (int y = 0; y < lev->header.length; y++)
-                // don't do this anymore since sizeof(maptile_t) is unreliable
-//              file.write((const char*)&(lev->tiles[y][0]), lev->header.width * sizeof(maptile_t));
                 for (int x = 0; x < lev->header.width; x++) {
                     file.write((const char*)&(lev->tiles[y][x].geometry), 1);
                     file.write((const char*)&(lev->tiles[y][x].obstacle), 1);
