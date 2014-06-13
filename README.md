@@ -1,6 +1,6 @@
 Kirby's Dream Course Editor
 ===========================
-version 1.11
+version 1.12
 
 ![Screenshot](http://dl.dropboxusercontent.com/u/43107309/kdceditor-111.png)
 
