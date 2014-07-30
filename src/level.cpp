@@ -158,8 +158,8 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
     file.readFromPointer(flagsTable[ver] + (num * 3), 0, buffer[3]);
 
     // read last row first
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
+    for (uint i = 0; i < length; i++) {
+        for (uint j = 0; j < width; j++) {
             level->tiles[length-i-1][j].geometry = buffer[0][i*width + j];
             level->tiles[length-i-1][j].obstacle = buffer[1][i*width + j];
             level->tiles[length-i-1][j].height = buffer[2][i*width + j];
