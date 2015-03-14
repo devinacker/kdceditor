@@ -4,10 +4,12 @@ Makefile
 Makefile.Release
 Makefile.Debug
 object_script.*
-*.pro.user
+*.pro.user*
 *.ini
 ui_*.h
 *.sfc
+currentlevel.txt
+*.autosave
 
 #################
 ## Eclipse

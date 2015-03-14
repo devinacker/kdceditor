@@ -17,6 +17,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QStandardPaths>
 
 #include <algorithm>
 #include <cstdio>
@@ -29,14 +30,16 @@
 #include "coursewindow.h"
 #include "version.h"
 
-#ifdef _WIN32
+#if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    settings(new QSettings("settings.ini", QSettings::IniFormat, this)),
+    settings(new QSettings(
+                 QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.ini",
+                 QSettings::IniFormat, this)),
 
     fileOpen(false),
     unsaved(false),
@@ -70,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setOpenFileActions(false);
     updateTitle();
 
-#ifdef _WIN32
+#if defined(Q_OS_WIN32)
     // lousy attempt to get the right-sized icons used by Windows, since Qt will only
     // resize one icon in the icon resource (and not the one i want it to use for the
     // titlebar, anyway), at least in 4.7 (and 4.8?)
@@ -80,6 +83,11 @@ MainWindow::MainWindow(QWidget *parent) :
     SendMessage((HWND)this->winId(),
                 WM_SETICON, ICON_BIG,
                 (LPARAM)LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(0)));
+
+#elif defined(Q_OS_MAC)
+    // silly macs and their weird keyboards
+    ui->action_Delete->setShortcut(Qt::Key_Backspace);
+
 #endif
 }
 
@@ -850,7 +858,7 @@ void MainWindow::nextCourse() {
   Help menu item slots
 */
 void MainWindow::showHelp() {
-    QDesktopServices::openUrl(QUrl(QCoreApplication::applicationDirPath()
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QCoreApplication::applicationDirPath()
                                    + "/docs/index.htm"));
 }
 
