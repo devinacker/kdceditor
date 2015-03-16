@@ -300,8 +300,8 @@ void MainWindow::setEditActions(bool val) {
  *actions that depend on the state of the undo stack
  */
 void MainWindow::setUndoRedoActions(bool val) {
-    ui->action_Undo->setEnabled(val & scene->canUndo());
-    ui->action_Redo->setEnabled(val & scene->canRedo());
+    ui->action_Undo->setEnabled(val && scene->canUndo());
+    ui->action_Redo->setEnabled(val && scene->canRedo());
 }
 
 /*
