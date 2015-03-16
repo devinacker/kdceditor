@@ -12,6 +12,9 @@
 #define MAX_2D_AREA 2048
 #define MAX_3D_AREA 13312
 
+#define MAX_FIELD_HEIGHT 384+4
+#define MAX_FIELD_WIDTH 384
+
 extern const int numLevels[];
 extern const int clippingTable[];
 
@@ -101,7 +104,7 @@ leveldata_t*  loadLevel(ROMFile& file, uint num);
 uint          saveLevel(ROMFile& file, uint num, leveldata_t *level, uint offset);
 // uint saveAllLevels(ROMFile& file, leveldata_t **levels, uint num, uint offset = 0);
 size_t        makeClipTable(const leveldata_t *level, uint8_t *buffer);
-void          makeIsometricMap(uint16_t playfield[2][384][384], leveldata_t *level);
+void          makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], leveldata_t *level);
 
 uint          levelHeight(const leveldata_t *level);
 bool          waterLevel(const leveldata_t *level);

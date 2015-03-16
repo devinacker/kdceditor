@@ -257,7 +257,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
     QCoreApplication::processEvents();
 
     // step 6: create packed playfield tilemaps and write them
-    uint16_t playfield[2][384][384];
+    uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH];
     makeIsometricMap(playfield, level);
 
     uint16_t rowStarts [CHUNK_SIZE / 2] = {0};
@@ -436,9 +436,9 @@ size_t makeClipTable(const leveldata_t *level, uint8_t *buffer) {
   This needs some serious rewriting. It was pretty much totally improvised, revised,
   revised, revised, revised, and revised again and again until it looked right.
 */
-void makeIsometricMap(uint16_t playfield[2][384][384], leveldata_t *level) {
+void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], leveldata_t *level) {
     // erase the old map
-    memset(playfield, 0, 2*384*384*sizeof(uint16_t));
+    memset(playfield, 0, 2*MAX_FIELD_HEIGHT*MAX_FIELD_WIDTH*sizeof(uint16_t));
 
     int h = levelHeight(level);
     int l = level->header.length;

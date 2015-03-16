@@ -10,7 +10,7 @@
 
 #include "level.h"
 
-#define MAX_HEIGHT 31
+#define MAX_HEIGHT 64
 
 namespace Ui {
 class TileEditWindow;

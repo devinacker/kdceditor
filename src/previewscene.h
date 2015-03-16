@@ -21,7 +21,7 @@ private:
 
 public:
     PreviewScene(QObject *parent, leveldata_t *currentLevel);
-    void refresh(uint16_t (&playfield)[2][384][384]);
+    void refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH]);
 };
 
 #endif // PREVIEWSCENE_H

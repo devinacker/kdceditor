@@ -42,7 +42,7 @@ private:
     // The max for each dimension here was chosen as 384, but the
     // length * width cannot ever exceed 13312 tiles (or 26624 bytes.)
     // There are two playfields (one per layer) with the same size and layout.
-    uint16_t  playfield[2][384][384];
+    uint16_t  playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH];
 
 };
 

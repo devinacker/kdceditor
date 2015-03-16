@@ -32,7 +32,7 @@ PreviewScene::PreviewScene(QObject *parent, leveldata_t *currentLevel)
     player.load  (":images/kirby.png");
 }
 
-void PreviewScene::refresh(uint16_t (&playfield)[2][384][384]) {
+void PreviewScene::refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH]) {
 
     // load the 3d tile resource
     // (NOTE: this is a temporary measure until actual graphic/palette
