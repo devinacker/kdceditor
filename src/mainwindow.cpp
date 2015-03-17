@@ -145,6 +145,10 @@ void MainWindow::setupSignals() {
     QObject::connect(ui->action_Save_Level_to_Image, SIGNAL(triggered()),
                      previewWin, SLOT(savePreview()));
 
+    QObject::connect(ui->action_Load_Level_from_File, SIGNAL(triggered()),
+                     this, SLOT(loadLevelFromFile()));
+    QObject::connect(ui->action_Save_Level_to_File, SIGNAL(triggered()),
+                     this, SLOT(saveLevelToFile()));
     QObject::connect(ui->action_Load_Course_from_File, SIGNAL(triggered()),
                      this, SLOT(loadCourseFromFile()));
     QObject::connect(ui->action_Save_Course_to_File, SIGNAL(triggered()),
@@ -292,6 +296,8 @@ void MainWindow::setEditActions(bool val) {
     ui->action_Save_Level      ->setEnabled(val);
     ui->action_Edit_Tiles      ->setEnabled(val);
     ui->action_Level_Properties->setEnabled(val);
+    ui->action_Load_Level_from_File->setEnabled(val);
+    ui->action_Save_Level_to_File->setEnabled(val);
     ui->action_Load_Course_from_File->setEnabled(val);
     ui->action_Save_Course_to_File->setEnabled(val);
 }
@@ -647,6 +653,122 @@ typedef struct {
 } coursefile_t;
 #pragma pack()
 
+void MainWindow::loadLevelFromFile() {
+    if (!fileOpen) return;
+
+    // prompt the user for a course to load
+    QString newFileName = QFileDialog::getOpenFileName(this,
+                                 tr("Load Level"), "",
+                                 tr("Level files (*.kdcl)"));
+
+    QFile file(newFileName);
+
+    if (!newFileName.isNull() && file.open(QIODevice::ReadOnly)) {
+        char magic[5] = {0};
+        uint8_t game, music;
+
+        file.seek(0);
+
+        // check file magic number
+        file.read(magic, 5);
+        if (strcmp(magic, "KDCL")) {
+            QMessageBox::warning(this, tr("Load Level"),
+                                 tr("%1\nis not a valid level file.")
+                                 .arg(newFileName),
+                                 QMessageBox::Ok);
+
+            file.close();
+            return;
+        }
+
+        file.read((char*)&game, 1);
+        file.read((char*)&music, 1);
+
+        // TODO: check game and display warning if different from current
+
+        // load level header
+        header_t tempHeader;
+        file.read((char*)&tempHeader, sizeof(header_t));
+
+        if (tempHeader.width * tempHeader.length > MAX_2D_AREA) {
+            QMessageBox::StandardButton button = QMessageBox::warning(0,
+                                                  QString("Error"),
+                                                  QString("Unable to load level due to an invalid level size. The course may be corrupted.\n\nContinue loading?"),
+                                                  QMessageBox::Yes | QMessageBox::No);
+
+            if (button == QMessageBox::No) {
+                return;
+            }
+        }
+
+        leveldata_t *lev = levels[level];
+        lev->header = tempHeader;
+
+        // load tile data
+        for (int y = 0; y < lev->header.length; y++) {
+            for (int x = 0; x < lev->header.width; x++) {
+                file.read((char*)&(lev->tiles[y][x].geometry), 1);
+                file.read((char*)&(lev->tiles[y][x].obstacle), 1);
+                file.read((char*)&(lev->tiles[y][x].height), 1);
+                file.read((char*)&(lev->tiles[y][x].flags), 1);
+            }
+        }
+
+        // set music data
+        lev->music = music;
+
+        // mark level as modified
+        lev->modified = true;
+        lev->modifiedRecently = false;
+        setLevel(level);
+        unsaved = true;
+    }
+
+    status(tr("Loaded level %1.").arg(newFileName));
+    file.close();
+}
+
+void MainWindow::saveLevelToFile() {
+    if (!fileOpen || checkSaveLevel() == QMessageBox::Cancel) return;
+
+    // prompt the user for a level to save to
+    QString newFileName = QFileDialog::getSaveFileName(this,
+                                 tr("Save Level"), "",
+                                 tr("Level files (*.kdcl)"));
+
+    QFile file(newFileName);
+
+    if (!newFileName.isNull() && file.open(QIODevice::WriteOnly)) {
+
+        file.seek(0);
+
+        leveldata_t *lev = &currentLevel;
+
+        char header[7] = "KDCL";
+        header[5] = rom.getGame();
+        header[6] = lev->music;
+
+        // write file header
+        file.write(header, 7);
+
+        // save level header
+        file.write((const char*)&lev->header, sizeof(header_t));
+
+        // save tile data
+        for (int y = 0; y < lev->header.length; y++) {
+            for (int x = 0; x < lev->header.width; x++) {
+                file.write((const char*)&(lev->tiles[y][x].geometry), 1);
+                file.write((const char*)&(lev->tiles[y][x].obstacle), 1);
+                file.write((const char*)&(lev->tiles[y][x].height), 1);
+                file.write((const char*)&(lev->tiles[y][x].flags), 1);
+            }
+        }
+    }
+
+    status(tr("Saved level %1.").arg(newFileName));
+    file.close();
+}
+
 void MainWindow::loadCourseFromFile() {
     if (!fileOpen) return;
 
@@ -753,7 +875,7 @@ void MainWindow::saveCourseToFile() {
 
     int course = level / 8;
 
-    // prompt the user for a course to load
+    // prompt the user for a course to save to
     QString newFileName = QFileDialog::getSaveFileName(this,
                                  tr("Save Course"), "",
                                  tr("Course files (*.kdc)"));
@@ -803,13 +925,14 @@ void MainWindow::saveCourseToFile() {
             file.write((const char*)&lev->header, sizeof(header_t));
 
             // save tile data
-            for (int y = 0; y < lev->header.length; y++)
+            for (int y = 0; y < lev->header.length; y++) {
                 for (int x = 0; x < lev->header.width; x++) {
                     file.write((const char*)&(lev->tiles[y][x].geometry), 1);
                     file.write((const char*)&(lev->tiles[y][x].obstacle), 1);
                     file.write((const char*)&(lev->tiles[y][x].height), 1);
                     file.write((const char*)&(lev->tiles[y][x].flags), 1);
                 }
+            }
         }
     }
 

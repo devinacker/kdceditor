@@ -103,6 +103,8 @@
     <addaction name="action_Save_Level"/>
     <addaction name="action_Save_Level_to_Image"/>
     <addaction name="separator"/>
+    <addaction name="action_Load_Level_from_File"/>
+    <addaction name="action_Save_Level_to_File"/>
     <addaction name="action_Load_Course_from_File"/>
     <addaction name="action_Save_Course_to_File"/>
     <addaction name="separator"/>
@@ -460,11 +462,21 @@
     <string>Ctrl+Y</string>
    </property>
   </action>
+  <action name="action_Load_Level_from_File">
+   <property name="text">
+    <string>Load Level from File...</string>
+   </property>
+  </action>
+  <action name="action_Save_Level_to_File">
+   <property name="text">
+    <string>Save Level to File...</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="icons.qrc"/>
   <include location="images.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

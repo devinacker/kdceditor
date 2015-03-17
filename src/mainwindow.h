@@ -38,6 +38,8 @@ protected slots:
     void setUnsaved();
 
     // level menu
+    void loadLevelFromFile();
+    void saveLevelToFile();
     void loadCourseFromFile();
     void saveCourseToFile();
 
