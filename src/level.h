@@ -12,7 +12,7 @@
 #define MAX_2D_AREA 2048
 #define MAX_3D_AREA 13312
 
-#define MAX_FIELD_HEIGHT 384+4
+#define MAX_FIELD_HEIGHT (384+4)
 #define MAX_FIELD_WIDTH 384
 
 extern const int numLevels[];
