@@ -14,9 +14,15 @@ CONFIG(release, debug|release) {
     DESTDIR = release
 }
 
+OBJECTS_DIR = obj/$$DESTDIR
+MOC_DIR = $$OBJECTS_DIR
+RCC_DIR = $$OBJECTS_DIR
+
 # copy docs and samples on build
 copydata.commands += \
     $(COPY_DIR) $$PWD/docs $$DESTDIR &&\
+    $(COPY_DIR) $$PWD/CHANGES.txt $$DESTDIR &&\
+    $(COPY_DIR) $$PWD/COPYING.txt $$DESTDIR &&\
     $(COPY_DIR) $$PWD/samples $$DESTDIR
 
 first.depends = $(first) copydata
