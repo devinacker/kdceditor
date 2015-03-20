@@ -1,12 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-01-12T02:12:24
-#
-#-------------------------------------------------
-
-# Note: make sure docs directory is in executable directory on launch
-# or else Help > Contents will fail
-
 QT       += core widgets
 
 QMAKE_CFLAGS += -std=c99
@@ -16,8 +7,26 @@ TARGET = KDCEditor
 TEMPLATE = app
 CONFIG += c++11
 
+CONFIG(debug, debug|release) {
+    DESTDIR = debug
+}
+CONFIG(release, debug|release) {
+    DESTDIR = release
+}
+
+# copy docs and samples on build
+copydata.commands += \
+    $(COPY_DIR) $$PWD/docs $$DESTDIR &&\
+    $(COPY_DIR) $$PWD/samples $$DESTDIR
+
+first.depends = $(first) copydata
+export(first.depends)
+export(copydata.commands)
+QMAKE_EXTRA_TARGETS += first copydata
+
 # OS-specific metadata and stuff
 win32:RC_FILE = src/windows.rc
+macx:ICON = src/images/main.icns
 
 # build on OS X with xcode/clang and libc++
 macx:QMAKE_CXXFLAGS += -stdlib=libc++
