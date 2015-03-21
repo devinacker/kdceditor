@@ -12,8 +12,15 @@
 #define MAX_2D_AREA 2048
 #define MAX_3D_AREA 13312
 
-#define MAX_FIELD_HEIGHT (384+4)
-#define MAX_FIELD_WIDTH 384
+// these are the limits for length/width and height of levels!
+// (for individual dimensions only; see the above two #defines too)
+#define MAX_2D_SIZE 64
+#define MAX_HEIGHT 64
+
+// maximum size of the 8x8 tile maps based on 2D map size
+// (with a bit of padding at the bottom just because)
+#define MAX_FIELD_HEIGHT (2 * (MAX_HEIGHT + MAX_2D_SIZE + MAX_2D_SIZE + 2))
+#define MAX_FIELD_WIDTH (8 * MAX_2D_SIZE)
 
 extern const int numLevels[];
 extern const int clippingTable[];
@@ -83,7 +90,7 @@ typedef struct {
     // size of either dimension needed to fit all of the original levels
     // (but the maximum size of each dimension depends on the size of the other,
     // so that width/length is always <= 2048.
-    maptile_t tiles[64][64];
+    maptile_t tiles[MAX_2D_SIZE][MAX_2D_SIZE];
 
     // have any of the tile data fields been changed from the original data?
     // (determined based on their position in the ROM file, also set as soon

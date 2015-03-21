@@ -27,7 +27,7 @@ private:
     int selX, selY, selLength, selWidth;
     bool selecting;
 
-    maptile_t copyBuffer[64][64];
+    maptile_t copyBuffer[MAX_2D_SIZE][MAX_2D_SIZE];
     uint copyWidth, copyLength;
 
     QUndoStack stack;

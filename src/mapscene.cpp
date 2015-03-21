@@ -261,8 +261,8 @@ void MapScene::paste() {
     edit->setText("paste");
 
     // otherwise, move stuff into the level from the buffer
-    for (uint i = 0; i < copyLength && selY + i < 64; i++) {
-        for (uint j = 0; j < copyWidth && selX + j < 64; j++) {
+    for (uint i = 0; i < copyLength && selY + i < MAX_2D_SIZE; i++) {
+        for (uint j = 0; j < copyWidth && selX + j < MAX_2D_SIZE; j++) {
             level->tiles[selY + i][selX + j] = copyBuffer[i][j];
         }
     }
@@ -284,8 +284,8 @@ void MapScene::deleteTiles() {
     edit->setText("delete");
 
     // otherwise, delete stuff
-    for (int i = 0; i < selLength && selY + i < 64; i++) {
-        for (int j = 0; j < selWidth && selX + j < 64; j++) {
+    for (int i = 0; i < selLength && selY + i < MAX_2D_SIZE; i++) {
+        for (int j = 0; j < selWidth && selX + j < MAX_2D_SIZE; j++) {
             level->tiles[selY + i][selX + j] = noTile;
         }
     }
@@ -426,8 +426,8 @@ void MapScene::paintEvent(QPaintEvent *event) {
     QRect rect = event->rect();
 
     // slowly blit shit from the tile resource onto the pixmap
-    for (int h = rect.top() / TILE_SIZE; h <= rect.bottom() / TILE_SIZE; h++) {
-        for (int w = rect.left() / TILE_SIZE; w < rect.right() / TILE_SIZE; w++) {
+    for (int h = rect.top() / TILE_SIZE; h < MAX_2D_SIZE && h <= rect.bottom() / TILE_SIZE; h++) {
+        for (int w = rect.left() / TILE_SIZE; w < MAX_2D_SIZE && w <= rect.right() / TILE_SIZE; w++) {
             maptile_t *tile = &level->tiles[h][w];
             int geo = tile->geometry;
             if (geo) {

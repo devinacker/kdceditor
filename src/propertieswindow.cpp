@@ -48,11 +48,11 @@ PropertiesWindow::~PropertiesWindow()
 }
 
 void PropertiesWindow::setMaxLevelWidth(int length) {
-    ui->spinBox_Width->setMaximum(std::min(64, MAX_2D_AREA / length));
+    ui->spinBox_Width->setMaximum(std::min(MAX_2D_SIZE, MAX_2D_AREA / length));
 }
 
 void PropertiesWindow::setMaxLevelLength(int width) {
-    ui->spinBox_Length->setMaximum(std::min(64, MAX_2D_AREA / width));
+    ui->spinBox_Length->setMaximum(std::min(MAX_2D_SIZE, MAX_2D_AREA / width));
 }
 
 void PropertiesWindow::startEdit(leveldata_t *level,
