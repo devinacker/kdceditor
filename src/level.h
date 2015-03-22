@@ -153,9 +153,6 @@ public:
         return fieldSize;
     }
 
-signals:
-    void showSizeWarning(int);
-
 protected:
     QList<QByteArray*> chunks;
     leveldata_t *level;
