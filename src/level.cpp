@@ -19,12 +19,8 @@
 #include <cstdint>
 #include <vector>
 
-#include <QMessageBox>
 #include <QString>
 #include <QCoreApplication>
-
-#define CHUNK_SIZE 2048
-#define BIG_CHUNK_SIZE 26624
 
 using namespace stuff;
 
@@ -173,16 +169,13 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
 }
 
 /*
-  Save a level back to the ROM. Returns the next available ROM address
-  to write level data to.
-*/
-uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
+ * New version of saveLevel that returns a list of chunks
+ */
+QList<QByteArray*> saveLevel(leveldata_t *level, int *fieldSize) {
     // buffers for compressed and uncompressed data
     uint8_t packed[CHUNK_SIZE], unpacked[CHUNK_SIZE];
     size_t packedSize = 0;
-
-    ROMFile::version_e ver = file.getVersion();
-    ROMFile::game_e    game = file.getGame();
+    QList<QByteArray*> chunks;
 
     // level length, width
     int length = level->header.length;
@@ -203,14 +196,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
     level->header.dummy1 = 0xFFFF;
     level->header.dummy2 = 0xFFFF;
 
-    if (game == ROMFile::kirby) {
-        addr = file.writeToPointer(headerTable[ver] + 3 * num, addr, sizeof(header_t), &level->header);
-    } else {
-        // TODO: the rest of the STS level info tables here, too, someday
-        file.writeByte(widthTable + num * 2, level->header.width);
-        file.writeByte(lengthTable + num * 2, level->header.length);
-    }
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)&level->header, sizeof(header_t)));
 
     // step 2: compress and save terrain in chunk 1
     // build uncompressed data buffer from terrain data
@@ -220,8 +206,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
             unpacked[y * width + x] = level->tiles[length - y - 1][x].geometry;
 
     packedSize = pack(unpacked, length * width, packed, 1);
-    addr = file.writeToPointer(terrainTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 3: compress and save obstacles in chunk 2
     // build uncompressed data buffer from obstacle data
@@ -230,8 +215,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
             unpacked[y * width + x] = level->tiles[length - y - 1][x].obstacle;
 
     packedSize = pack(unpacked, length * width, packed, 1);
-    addr = file.writeToPointer(obstacleTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 4: compress and save heights in chunk 3
     // build uncompressed data buffer from terrain data
@@ -240,8 +224,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
             unpacked[y * width + x] = level->tiles[length - y - 1][x].height;
 
     packedSize = pack(unpacked, length * width, packed, 1);
-    addr = file.writeToPointer(heightTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 5: compress and save flags in chunk 4
     // build uncompressed data buffer from terrain data
@@ -253,8 +236,7 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
             //unpacked[y * width + x] = level->tiles[length - y - 1][x].flags;
 
     packedSize = pack(unpacked, length * width, packed, 1);
-    addr = file.writeToPointer(flagsTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 6: create packed playfield tilemaps and write them
     uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH];
@@ -305,40 +287,123 @@ uint saveLevel(ROMFile& file, uint num, leveldata_t *level, uint addr) {
         index += rowLen;
     }
 
-    if (index * 2 > BIG_CHUNK_SIZE) {
-        QMessageBox::warning(0, "Save ROM",
-                             QString("Unable to save the entire 3D tilemap for course %1-%2 because it is too large\n(%3 / %4 bytes).\n\nPlease decrease the length, width, and/or height of the course in order to reduce the tilemap size.")
-                             .arg((num / 8) + 1).arg((num % 8) + 1).arg(index * 2).arg(BIG_CHUNK_SIZE),
-                             QMessageBox::Ok);
+    if (fieldSize) {
+        *fieldSize = index * 2;
     }
 
     // step 7: write playfield chunks
     packedSize = pack((uint8_t*)&rowStarts[0], level->header.fieldHeight * 2, packed, 1);
-    addr = file.writeToPointer(rowStartTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     packedSize = pack((uint8_t*)&rowEnds[0], level->header.fieldHeight * 2, packed, 1);
-    addr = file.writeToPointer(rowEndTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     packedSize = pack((uint8_t*)&rowOffsets[0], level->header.fieldHeight * 2, packed, 1);
-    addr = file.writeToPointer(rowOffsetTable[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     packedSize = pack((uint8_t*)&layer[0][0], index * 2, packed, 1);
-    addr = file.writeToPointer(layer1Table[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     packedSize = pack((uint8_t*)&layer[1][0], index * 2, packed, 1);
-    addr = file.writeToPointer(layer2Table[ver] + 3 * num, addr, packedSize, packed);
-    QCoreApplication::processEvents();
+    chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 8: do clipping table
-    // TODO: update clipping table info based on STS expanded format
-    if (game == ROMFile::kirby) {
-        size_t clipSize = makeClipTable(level, unpacked);
-        packedSize = pack(unpacked, clipSize, packed, 1);
-        addr = file.writeToPointer(clippingTable[ver] + 3 * num, addr, packedSize, packed);
+    // TODO: update clipping table info based on STS expanded format?
+    size_t clipSize = makeClipTable(level, unpacked);
+    packedSize = pack(unpacked, clipSize, packed, 1);
+    chunks.append(new QByteArray((const char*)packed, packedSize));
+
+    return chunks;
+}
+
+/*
+ * Save all modified levels to ROM using worker threads
+ */
+uint saveAllLevels(ROMFile& file, leveldata_t **levels) {
+
+    ROMFile::version_e ver = file.getVersion();
+    ROMFile::game_e    game = file.getGame();
+
+    uint addr = newDataAddress[ver];
+
+    SaveWorker* workers[numLevels[game]];
+
+    // spawn and start worker threads
+    for (int i = 0; i < numLevels[game]; i++) {
+        if (levels[i]->modified)
+            workers[i] = new SaveWorker(levels[i]);
+        else
+            workers[i] = NULL;
+    }
+
+    // join and save data from worker threads
+    for (int num = 0; num < numLevels[game]; num++) {
+
+        if (!workers[num]) continue;
+
+        QList<QByteArray*> chunks = workers[num]->getChunks();
+        QByteArray *data;
+
+        int fieldSize = workers[num]->getFieldSize();
+        if (fieldSize > BIG_CHUNK_SIZE) {
+            QMessageBox::warning(0, "Save ROM",
+                     QString("Unable to save the entire 3D tilemap for course %1-%2 because it is too large\n(%3 / %4 bytes)."
+                             "\n\nPlease decrease the length, width, and/or height of the course in order to reduce the tilemap size.")
+                     .arg((num / 8) + 1).arg((num % 8) + 1).arg(fieldSize).arg(BIG_CHUNK_SIZE),
+                     QMessageBox::Ok);
+        }
+
+        // step 1: save level header
+        data = chunks[0];
+
+        if (game == ROMFile::kirby) {
+            addr = file.writeToPointer(headerTable[ver] + 3 * num, addr, data->size(), data->data());
+        } else {
+            // TODO: save the STS level info
+        }
+
+        // step 2: save terrain in chunk 1
+        data = chunks[1];
+        addr = file.writeToPointer(terrainTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        // step 3: save obstacles in chunk 2
+        data = chunks[2];
+        addr = file.writeToPointer(obstacleTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        // step 4: save heights in chunk 3
+        data = chunks[3];
+        addr = file.writeToPointer(heightTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        // step 5: save flags in chunk 4
+        data = chunks[4];
+        addr = file.writeToPointer(flagsTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        // step 6: write playfield chunks
+        data = chunks[5];
+        addr = file.writeToPointer(rowStartTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        data = chunks[6];
+        addr = file.writeToPointer(rowEndTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        data = chunks[7];
+        addr = file.writeToPointer(rowOffsetTable[ver] + 3 * num, addr, data->size(), data->data());
+
+        data = chunks[8];
+        addr = file.writeToPointer(layer1Table[ver] + 3 * num, addr, data->size(), data->data());
+
+        data = chunks[9];
+        addr = file.writeToPointer(layer2Table[ver] + 3 * num, addr, data->size(), data->data());
+
+        // step 7: do clipping table
+        // TODO: update clipping table info based on STS expanded format
+        if (game == ROMFile::kirby) {
+            data = chunks[10];
+            addr = file.writeToPointer(clippingTable[ver] + 3 * num, addr, data->size(), data->data());
+        }
+
+        delete workers[num];
+
+        QCoreApplication::processEvents();
     }
 
     return addr;
@@ -444,7 +509,7 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
     int l = level->header.length;
 
     // render "back to front" - that is, from north to south, west to east
-    for (int x = 0; x < level->header.width; x++)
+    for (int x = 0; x < level->header.width; x++) {
         for (int y = 0; y < level->header.length; y++) {
 
             // do not render non-terrain tiles at all
@@ -723,4 +788,5 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
 
                 }
         }
+    }
 }

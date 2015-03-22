@@ -480,19 +480,11 @@ void MainWindow::saveFile() {
 
     // disable saving/editing while already saving
     setEditActions(false);
+    QCoreApplication::processEvents();
     saving = true;
 
     // save levels to ROM
-    int addr = newDataAddress[rom.getVersion()];
-
-    for (int i = 0; i < numLevels[game]; i++) {
-        if (levels[i]->modified) {
-            addr = saveLevel(rom, i, levels[i], addr);
-
-            status(tr("Saved level %1-%2").arg((i / 8) + 1).arg((i % 8) + 1));
-            QCoreApplication::processEvents();
-        }
-    }
+    uint addr = saveAllLevels(rom, levels);
 
     // Pad the current ROM bank to 32kb to make sure it is
     // mapped correctly

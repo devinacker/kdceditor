@@ -9,8 +9,16 @@
 #include "romfile.h"
 #include <cstdint>
 
-#define MAX_2D_AREA 2048
-#define MAX_3D_AREA 13312
+#include <QThread>
+#include <QList>
+#include <QByteArray>
+#include <QMessageBox>
+
+#define CHUNK_SIZE 2048
+#define BIG_CHUNK_SIZE 26624
+
+#define MAX_2D_AREA CHUNK_SIZE
+#define MAX_3D_AREA (BIG_CHUNK_SIZE / 2)
 
 // these are the limits for length/width and height of levels!
 // (for individual dimensions only; see the above two #defines too)
@@ -108,11 +116,55 @@ typedef struct {
   Functions for loading/saving level data
 */
 leveldata_t*  loadLevel(ROMFile& file, uint num);
-uint          saveLevel(ROMFile& file, uint num, leveldata_t *level, uint offset);
-// uint saveAllLevels(ROMFile& file, leveldata_t **levels, uint num, uint offset = 0);
+QList<QByteArray*>  saveLevel(leveldata_t *level, int *fieldSize = 0);
+uint          saveAllLevels(ROMFile& file, leveldata_t **levels);
+
 size_t        makeClipTable(const leveldata_t *level, uint8_t *buffer);
 void          makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], leveldata_t *level);
 
 uint          levelHeight(const leveldata_t *level);
 bool          waterLevel(const leveldata_t *level);
+
+/*
+ * Worker threads for generating compressed level data
+*/
+class SaveWorker : public QThread {
+    Q_OBJECT
+
+public:
+    SaveWorker(leveldata_t *level, QObject *parent = 0)
+        : QThread(parent), level(level) {
+        this->start();
+    }
+
+    ~SaveWorker() {
+        for (QByteArray*& chunk: chunks) {
+            delete chunk;
+        }
+    }
+
+    QList<QByteArray*> getChunks() {
+        this->wait();
+        return chunks;
+    }
+
+    int getFieldSize() {
+        this->wait();
+        return fieldSize;
+    }
+
+signals:
+    void showSizeWarning(int);
+
+protected:
+    QList<QByteArray*> chunks;
+    leveldata_t *level;
+    int fieldSize;
+
+    void run() {
+        chunks = saveLevel(level, &fieldSize);
+        this->quit();
+    }
+};
+
 #endif // LEVEL_H
