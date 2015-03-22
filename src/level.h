@@ -22,8 +22,8 @@
 
 // these are the limits for length/width and height of levels!
 // (for individual dimensions only; see the above two #defines too)
-#define MAX_2D_SIZE 64
-#define MAX_HEIGHT 64
+#define MAX_2D_SIZE 100
+#define MAX_HEIGHT 49
 
 // maximum size of the 8x8 tile maps based on 2D map size
 // (with a bit of padding at the bottom just because)
