@@ -1,3 +1,13 @@
+v1.13 [2015-03-22]
+Much faster multithreaded saving
+Added loading/saving of individual level files
+Increased maximum tile height from 31 to 49 and max level width/length to 100
+  (so you can waste more tile memory. Note that 2D and 3D map area limits are unchanged)
+Some more build/deployment improvements for OS X (thanks ConnorRK)
+Settings now saved in system-standard paths (%AppData%, etc.)
+Fixed buggy repainting of 2D map when scrolling horizontally
+Fixed possible bad graphics pointers when saving European ROMs
+
 v1.12 [2014-06-12]
 Fixed the rewritten 2D display exhibiting some visual strangeness when resizing levels
 

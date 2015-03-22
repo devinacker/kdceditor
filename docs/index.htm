@@ -10,7 +10,7 @@
 <body>
 
 <h1>Kirby's Dream Course Editor</h1>
-version 1.12
+version 1.13
 <p>
 
 <table><tr><td>
@@ -84,7 +84,7 @@ A good example of the difference between inner and outer slopes can be seen on 1
 If you are editing a range of tiles with multiple terrain types, the dropdown will default to a value of "(multiple)". This option causes each tile's existing terrain value to remain the same.
 
 <h2>Height</h2>
-The height slider sets the height of the selected tile or tiles. Possible values range from 0 to 64 - this maximum value is not a limitation of the game, but is imposed by the editor to prevent isometric tilemaps from becoming too large (see the <a href="#properties">properties</a> section for more details).
+The height slider sets the height of the selected tile or tiles. Possible values range from 0 to 49 - this maximum value is not a limitation of the game, but is imposed by the editor to prevent isometric tilemaps from becoming too large (see the <a href="#properties">properties</a> section for more details).
 <p>
 If you are editing tiles which use one of the sloped terrain types, the height value must be at least 1. This is because all of the slope types start at the given height value and slope <em>down</em> to 1 unit lower.
 <p>
@@ -163,7 +163,7 @@ Note that, because the Japanese version's intro sequence was removed from the US
 <p>
 The level length and width boxes allow you to resize the level (length = north to south, width = east to west). Due to memory restrictions, the two-dimensional area of a level cannot be greater than 2,048; all of the original levels are much smaller in area than this, so this limitation is not likely to be much of a problem.
 <p>
-Note that the isometric tilemaps are also limited in size; their size is determined by the length, width, and height of the level, as well as how much (or how little) of the level is empty space. Once again, the limit here is much higher than what any of the original levels reach, so this should only present a problem if you are making unreasonably large levels that come close to the length/width limits. In the event that this actually happens, you will be presented with a warning when saving your ROM, and part of your level will not be visible in game.
+Note that the isometric tilemaps are also limited in size; their size is determined by the length, width, and height of the level, as well as how much (or how little) of the level is empty space. Once again, the limit here is much higher than what any of the original levels reach, so this should only present a problem if you are making unusually large levels that come close to the length/width limits. In the event that this actually happens, you will be presented with a warning when saving your ROM, and part of your level will not be visible in game.
 <p>
 <span class="smallLink">(<a href="#top">top</a>)</span>
 
@@ -181,7 +181,8 @@ The author would like to extend well-earned salami sandwiches to each of the fol
 <li><b>Graham</b> for his <a href="http://oxyron.de/html/opcodes.html" target="_blank">65xx series reference</a></li>
 <li><b>Kles</b> for extensive testing, suggestions, and some cool example levels</li>
 <li><b>Mark James</b> (<a href="http://www.famfamfam.com/" target="_blank">famfamfam</a>) for the Silk Icons set, used for menu and toolbar graphics</li>
-<li><b>Raccoon Sam</b> for build assistance and testing on OS X</li>
+<li><b>Raccoon Sam</b> and <b>ConnorRK</b> for build assistance and testing on OS X</li>
+<li><b><a href="http://www.reddit.com/r/KDCGameGrumps">/r/KDCGameGrumps</a></b> for much more testing, feedback, and general enjoyment</li>
 <li>Everyone else who has downloaded and supported the development of this program in any way</li>
 </ul>
 <p>
@@ -232,6 +233,6 @@ If you want to yell at me about something, here's how you can:
 <span class="smallLink">(<a href="#top">top</a>)</span>
 
 <p>
-copyright 2013-2014 Devin "Revenant" Acker - "life is but a dream"
+copyright 2013-2015 Devin "Revenant" Acker - "life is but a dream"
 </body>
 </html>
