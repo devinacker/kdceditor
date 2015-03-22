@@ -51,7 +51,7 @@ const int lengthTable      = 0x85fab6;
 const uint newDataAddress[] = {0xa88000, 0xa08000, 0xa08000};
 
 // blank tile used for rendering playfield
-const maptile_t noTile = {0, 0, 0, {0}};
+const maptile_t noTile = {0, 0, 0, {0, 0, 0, 0, 0, 0}};
 
 
 /*
@@ -379,7 +379,7 @@ size_t makeClipTable(const leveldata_t *level, uint8_t *buffer) {
             }
 
             // next, check for a gap to the west
-            if (level->tiles[y][x].geometry > 0
+            if (x > 0 && level->tiles[y][x].geometry > 0
                     && level->tiles[y][x - 1].geometry == 0) {
                 // how far does the gap go?
                 for (clip.xLower = x - 1; clip.xLower >= 1
@@ -589,8 +589,8 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
                                             (!thisTile.flags.bumperWest  && rightTile.flags.bumperWest)
                                             );
 
-            leftEdge  = (leftEdge  == wall) ? nothing : leftTile.obstacle;
-            rightEdge = (rightEdge == wall) ? nothing : rightTile.obstacle;
+            leftEdge  = (leftEdge  == wall) ? 0 : leftTile.obstacle;
+            rightEdge = (rightEdge == wall) ? 0 : rightTile.obstacle;
 
             metatile_t obs;
             if (useExtraTiles)
