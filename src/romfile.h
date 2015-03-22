@@ -17,14 +17,15 @@ class ROMFile: public QFile {
 public:
 
     enum version_e {
-        kirby_jp  = 0,
-        kirby_us  = 1,
-        sts_jp    = 2
+        kirby_jp,
+        kirby_us,
+        kirby_eu,
+        sts_jp
     };
 
     enum game_e {
-        kirby   = 0,
-        sts     = 1
+        kirby,
+        sts
     };
 
     ROMFile();

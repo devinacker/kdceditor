@@ -390,7 +390,7 @@ void MainWindow::openFile() {
 
                     // dirty hack due to the fact that music track 0x83 was deleted
                     // in the US/EU version of KDC, and further music tracks shifted down
-                    if (ver == ROMFile::kirby_us && levels[level]->music >= 0x83)
+                    if (ver != ROMFile::kirby_jp && levels[level]->music >= 0x83)
                         levels[level]->music++;
                 }
             }
@@ -506,7 +506,7 @@ void MainWindow::saveFile() {
     for (int i = 0; i < numLevels[game]; i++) {
         // dirty hack due to the fact that music track 0x83 was deleted
         // in the US/EU version of KDC, and further music tracks shifted down
-        if (ver == ROMFile::kirby_us && levels[level]->music >= 0x84)
+        if (ver != ROMFile::kirby_jp && levels[level]->music >= 0x84)
             rom.writeByte(newMusicAddr[ver] + i, levels[i]->music - 1);
         else
             rom.writeByte(newMusicAddr[ver] + i, levels[i]->music);

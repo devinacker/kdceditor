@@ -28,23 +28,23 @@ using namespace stuff;
 const int numLevels[] = {28 * 8, 9 * 8};
 
 //Locations of chunk data in ROM (using CPU addressing.)
-const int headerTable[]    = {0x8aa670, 0x88a770};
-const int terrainTable[]   = {0x8aa970, 0x88aa70, 0x85da80};
-const int obstacleTable[]  = {0x8aac70, 0x88ad70, 0x85dd08};
-const int heightTable[]    = {0x8aaf70, 0x88b070, 0x85db58};
-const int flagsTable[]     = {0x8ab270, 0x88b370, 0x85dc30};
-const int rowStartTable[]  = {0x8ab570, 0x88b670, 0x85dde0};
-const int rowEndTable[]    = {0x8ab870, 0x88b970, 0x85deb8};
-const int rowOffsetTable[] = {0x8abb70, 0x88bc70, 0x85df90};
-const int layer1Table[]    = {0x8abe70, 0x88bf70, 0x85e068};
-const int layer2Table[]    = {0x8ac170, 0x88c270, 0x85e140};
-const int clippingTable[]  = {0x8ac470, 0x88c570, 0x85e218};
+const int headerTable[]    = {0x8aa670, 0x88a770, 0x88a770};
+const int terrainTable[]   = {0x8aa970, 0x88aa70, 0x88aa70, 0x85da80};
+const int obstacleTable[]  = {0x8aac70, 0x88ad70, 0x88ad70, 0x85dd08};
+const int heightTable[]    = {0x8aaf70, 0x88b070, 0x88b070, 0x85db58};
+const int flagsTable[]     = {0x8ab270, 0x88b370, 0x88b370, 0x85dc30};
+const int rowStartTable[]  = {0x8ab570, 0x88b670, 0x88b670, 0x85dde0};
+const int rowEndTable[]    = {0x8ab870, 0x88b970, 0x88b970, 0x85deb8};
+const int rowOffsetTable[] = {0x8abb70, 0x88bc70, 0x88bc70, 0x85df90};
+const int layer1Table[]    = {0x8abe70, 0x88bf70, 0x88bf70, 0x85e068};
+const int layer2Table[]    = {0x8ac170, 0x88c270, 0x88c270, 0x85e140};
+const int clippingTable[]  = {0x8ac470, 0x88c570, 0x88c570, 0x85e218};
 
 // for Special Tee Shot only
 const int widthTable       = 0x85fa26;
 const int lengthTable      = 0x85fab6;
 
-const uint newDataAddress[] = {0xa88000, 0xa08000, 0xa08000};
+const uint newDataAddress[] = {0xa88000, 0xa08000, 0xa08000, 0xa08000};
 
 // blank tile used for rendering playfield
 const maptile_t noTile = {0, 0, 0, {0, 0, 0, 0, 0, 0}};

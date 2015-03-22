@@ -21,21 +21,21 @@ typedef std::map<uint, QString> StringMap;
 
 typedef struct {
     char name[50];
-    int  palette[2];
-    int  pointer1[2];
-    int  pointer2[2];
-    int  anim[2];
+    int  palette[3];
+    int  pointer1[3];
+    int  pointer2[3];
+    int  anim[3];
 } bg_t;
 
-extern const int   fgPaletteBase[2];
-extern const int   waterBase[2][2];
-extern const int   bgPaletteBase[2];
+extern const int   fgPaletteBase[3];
+extern const int   waterBase[2][3];
+extern const int   bgPaletteBase[3];
 
-extern const int   paletteTable[2];
-extern const int   waterTable[2][2];
-extern const int   backgroundTable[4][2];
-extern const int   musicTable[2];
-extern const int   newMusicAddr[2];
+extern const int   paletteTable[3];
+extern const int   waterTable[2][3];
+extern const int   backgroundTable[4][3];
+extern const int   musicTable[3];
+extern const int   newMusicAddr[3];
 
 extern const char* courseNames[][224 / 8];
 extern const bg_t  bgNames[];

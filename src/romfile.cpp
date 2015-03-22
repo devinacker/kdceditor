@@ -70,23 +70,24 @@ uint ROMFile::toOffset(uint address) {
 }
 
 /*
-  Opens the file and also verifies that it is one of the ROMS supported
+  Opens the file and also verifies that it is one of the ROMs supported
   by the editor; displays a dialog and returns false on failure.
 
   For KDC, this checks for the string "ninten" at various offsets.
   It also determines whether the ROM is headered or not.
 */
-const struct {int address; char string[7]; ROMFile::game_e game;} versions[] = {
+const struct {int address; char string[7]; uint8_t region; ROMFile::game_e game;} versions[] = {
     // Kirby Bowl (JP)
-    {0x8ECE, "ninten", ROMFile::kirby},
+    {0x8ECE, "ninten", 0, ROMFile::kirby},
     // Kirby's Dream Course (US/EU)
-    {0x8ECC, "ninten", ROMFile::kirby},
+    {0x8ECC, "ninten", 1, ROMFile::kirby},
+    {0x8ECC, "ninten", 2, ROMFile::kirby},
 
     // Special Tee Shot (currently debug mode only)
     // checks title of rom (which can and may be changed); find something better
-    {0xFFC0, "\xBD\xCD\xDF\xBC\xAC\xD9", ROMFile::sts},
+    {0xFFC0, "\xBD\xCD\xDF\xBC\xAC\xD9", 0, ROMFile::sts},
 
-    {0, "", ROMFile::kirby}
+    {0, "", 0, ROMFile::kirby}
 };
 
 bool ROMFile::openROM(OpenMode flags) {
@@ -95,6 +96,7 @@ bool ROMFile::openROM(OpenMode flags) {
 
     QSettings settings("settings.ini", QSettings::IniFormat, this);
     char buf[6];
+    uint8_t region = readByte(0xFFD9);;
     bool debug = settings.value("MainWindow/debug", false).toBool();
 
     header = this->size() % BANK_SIZE == 0x200;
@@ -104,7 +106,7 @@ bool ROMFile::openROM(OpenMode flags) {
             continue;
 
         readBytes(versions[i].address, 6, buf);
-        if (!memcmp(buf, versions[i].string, 6)) {
+        if (!memcmp(buf, versions[i].string, 6) && region == versions[i].region) {
             game = versions[i].game;
             version = (ROMFile::version_e)i;
             return true;
