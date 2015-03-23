@@ -1,6 +1,6 @@
 Kirby's Dream Course Editor
 ===========================
-version 1.12
+version 1.13
 
 ![Screenshot](http://dl.dropboxusercontent.com/u/43107309/kdceditor-111.png)
 
@@ -11,5 +11,7 @@ This is a fully-featured level editor for the Super NES game Kirby's Dream Cours
 More or less every issue that's come up since the initial beta release has been resolved, but there's still some stuff I may want to do eventually, which is all listed in TODO.txt.
 
 This is a Qt 5 project. So far it has been built and tested on Windows (with MinGW, because MSVC sucks), Mac OS X (with Clang), and Linux (with GCC). You are encouraged to try building and running it for yourself and seeing how it works. Other issues and suggestions are always welcome, of course.
+
+See the releases section for the latest official builds for Windows and OS X (both as of version 1.13).
 
 Some example course files are in the samples directory, courtesy of myself and others. Feel free to submit your own via pull request or email if you've made some cool levels that you want to show off.
