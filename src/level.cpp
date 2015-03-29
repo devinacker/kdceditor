@@ -591,6 +591,7 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
                             || leftTile.geometry == slopeNorthwestUpper
                             || leftTile.geometry == slopeSouthwestUpper
                             || thisTile.geometry == slopeSouth
+                            || thisTile.geometry == slopeSouthAndEastOuter
                             || thisTile.geometry == slopeSouthAndWestInner))
                     || (leftTile.height == thisTile.height
                         && thisTile.geometry < slopesFull
@@ -626,7 +627,8 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
                                 || rightTile.geometry == slopeNorthwestUpper
                                 || rightTile.geometry == slopeSouthwestUpper
                                 || thisTile.geometry == slopeEast
-                                || thisTile.geometry == slopeSouthAndEastOuter))
+                                || thisTile.geometry == slopeSouthAndEastOuter
+                                || thisTile.geometry == slopeNorthAndEastInner))
                         || (rightTile.height == thisTile.height
                             && thisTile.geometry < slopesFull
                             && rightTile.geometry == slopeNortheastFull))
