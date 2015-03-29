@@ -1124,7 +1124,7 @@ void MainWindow::dumpLevel() {
 
     for (int y = 0; y < l; y++) {
         for (int x = 0; x < w; x++)
-            fprintf(txt, "%02X ", *(char*)&currentLevel.tiles[y][x].flags);
+            fprintf(txt, "%02X ", *(uchar*)&currentLevel.tiles[y][x].flags);
 
         fprintf(txt, "\n");
     }
