@@ -11,8 +11,8 @@
 #define INFO_LEGAL  "Copyright 2013-2015 by Revenant\0"
 
 #define INFO_DESC   "Kirby's Dream Course editor\0"
-#define INFO_VERS   "1.13\0"
-#define INFO_VNUM   1, 13, 0, 0
+#define INFO_VERS   "1.13b\0"
+#define INFO_VNUM   1, 13, 1, 0
 #define INFO_NAME   "KDCEditor\0"
 #define INFO_FILE   "KDCEditor.exe\0"
 
