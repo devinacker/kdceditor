@@ -599,8 +599,13 @@ void MapScene::paintEvent(QPaintEvent *event) {
                                  infoText);
             }
 
+#ifdef QT_DEBUG
+            if (tile->flags.layer || tile->flags.dummy) {
+                infoText.sprintf("%02X", tile->flags);
+#else
             if (tile->flags.layer) {
                 infoText = "L2";
+#endif
                 infoRect = MapScene::infoFontMetrics.boundingRect(infoText);
 
                 painter.fillRect((w+1) * TILE_SIZE - infoRect.width() - 2 * MAP_TEXT_PAD_H,
