@@ -96,17 +96,20 @@ bool ROMFile::openROM(OpenMode flags) {
 
     QSettings settings("settings.ini", QSettings::IniFormat, this);
     char buf[6];
-    uint8_t region = readByte(0xFFD9);;
+    uint8_t region = readByte(0xFFD9);
     bool debug = settings.value("MainWindow/debug", false).toBool();
 
     header = this->size() % BANK_SIZE == 0x200;
 
     for (int i = 0; versions[i].address; i++) {
+#ifdef QT_NO_DEBUG
         if (!debug && versions[i].game == sts)
             continue;
+#endif
 
         readBytes(versions[i].address, 6, buf);
-        if (!memcmp(buf, versions[i].string, 6) && region == versions[i].region) {
+        if (!memcmp(buf, versions[i].string, 6)
+                && (versions[i].game == sts || region == versions[i].region)) {
             game = versions[i].game;
             version = (ROMFile::version_e)i;
             return true;
