@@ -1,0 +1,569 @@
+Kirby's Dream Course stuff.
+
+All addresses for now refer to the JP version since it has the handy dandy debug mode.
+
+These compass directions are referred to in the guide:
+(pretend like this is isometric)
+
+   W  N
+    \/
+    /\
+   S  E
+   
+based on the way angles are represented in Special Tee shot (with 0 degrees as north).
+
+--------------.
+RAM addresses |
+--------------'
+
+Kirby Bowl / Special Tee Shot
+
+7EABB4 / 7E95E3: map number (00-FF)
+7EABB6 / 7E95E5: map number * 2
+7EABB8         : map number * 3
+
+7E6A5C: course number
+7E6A5E: course number * 2
+7E6A60: hole number in course
+7E6A62: hole number * 2
+
+7E1EBC: map header data         (24-bit)
+7E00A2: compressed data pointer ("    ")
+
+7E8B92: current map header (32 bytes)
+
+7E6B92 / 7EC9A8: level geometry data (chunk 1, 2048 bytes)
+7E7392 / 7ED1A8: level height data (chunk 3, 2048 bytes)
+7E7B92 / 7ED9A8: level flag data (chunk 4, 2048 bytes)
+7E8392 / 7EE1A8: level obstacle data (chunk 2, 2048 bytes)
+7E8BB2 / 7F0800: layer 1+2 tile data offsets (chunk 7, 2048 bytes)
+7E93B2 / 7F0000: layer 1+2 tile row start points (chunk 5, 2048 bytes)
+7E9BB2 / 7F0400: layer 1+2 tile row end points (chunk 6, 2048 bytes)
+7EA3B4 / 7EEB4D: level sprite clipping data (chunk 10, 2048 bytes)
+7F3000 / 7F0C00: layer 1 tile data (chunk 8, 26624 bytes)
+7F9800 / 7F8600: layer 2 tile data (chunk 9, 26624 bytes)
+
+7F0000: map preview (STS)
+
+7ED9F2: kirby or cursor X fractional position
+7ED9F4: kirby or cursor X position (west to east)
+7ED9F6: kirby or cursor Y fractional position
+7ED9F8: kirby or cursor Y position (south to north) 
+7EDA00: tile type under kirby or cursor 
+
+--------------.
+ROM addresses |
+--------------'
+
+Kirby Bowl / Special Tee Shot
+
+8AA670: map header pointer table
+        
+Tables for compressed level chunks (10 per level, see compression info below)
+8AA970 / 85DA80: chunk 1: level geometry 
+8AAC70 / 85DD08: chunk 2: level obstacles
+8AAF70 / 85DB58: chunk 3: level height
+8AB270 / 85DC30: chunk 4: level tile flags
+8AB570 / 85DDE0: chunk 5: layer 1+2 row start positions
+8AB870 / 85DEB8: chunk 6: layer 1+2 row end positions
+8ABB70 / 85DF90: chunk 7: layer 1+2 tile data offsets
+8ABE70 / 85E068: chunk 8: layer 1 tile data
+8AC170 / 85E140: chunk 9: layer 2 tile data
+8AC470 / 85E218: chunk 10: level sprite clipping data
+
+85E61F : map preview chunk (STS), 32-bit pointers
+85FA26 : table of level widths (STS), 16-bit values
+85FAB6 : table of level lengths (STS), 16-bit values
+
+Chunks 1-7 and 10 have a maximum uncompressed size of 2 kilobytes (0x800 bytes).
+Chunks 8 and 9 have a maximum uncompressed size of 26 kilobytes (0x6800 bytes).
+
+818D0F: 24-bit pointers to obstacle code
+
+80C533: pointers to music lists (16-bit)
+80D0AF: pointers to BG palette (bright) for course & 7 (16-bit)
+80D0BF: pointers to BG palette (dark)   "                     "
+80D304: pointers to BG tilemap for course & 7 (16-bit bank, then 16-bit addr)
+80D324: pointers to ?? for course & 7 (16-bit bank, then 16-bit addr)
+80D425: pointers to FG palette for course (16-bit)
+8484AF: pointers to water palettes per course (16-bit)
+8484F1: pointers to ??? per course (16-bit)
+84CD23: pointers to BG anim code for course & 7 (16-bit)
+
+81CDF4: level load routine
+809F1A: decompression routine
+        (AL = source address bank
+         X  = source address
+         DB = destination address bank
+         Y  = destination address
+
+A4B157: course 1-1 header
+A3CE8E: course 1-1 chunk 1
+
+------------------.
+Map header format |
+------------------'
+
+This is the only uncompressed part of the level data and contains various basic info.
+It is 28(?) bytes large, but the game copies 32 bytes.
+
+Offset | Size | Description
+     0 |    2 | unknown
+     2 |    2 | width of level (east to west)
+     4 |    2 | length of level (north to south)
+     6 |    2 | unknown (possibly unused)
+
+     8 |    2 | horizontal size of playfield (units of 8 pixels)
+				this is calculated as 4 * (w + l)
+	 
+    10 |    2 | vertical size of playfield (units of 8 pixels)
+				this is calculated as 2 * (h + w + l + 1) + m
+				where h = the max height of the level geometry (zero-based)
+				and m is a top (or bottom?) margin. the game seems to usually use 5 for this value
+	
+                These two values control how far the screen can be scrolled in either direction.
+                They also dictate the size of the playfield for rendering purposes (see chunks 5+)
+ 
+    12 |    2 | horizontal alignment of Kirby (should always be zero)
+    14 |    2 | vertical alignment of sprites.
+                calculated as 16 * (l + h + 2)
+				
+    16 |   12 | map ID string (normally "MAPxx" padded with spaces)
+                this probably is unused by the game so it can be used by an editor to
+                store some editor-specific metadata, or any other hack-related things
+
+-----------------.
+Compression info |
+-----------------'
+
+This compression scheme is used to compress the level chunks and graphics and stuff. It uses a
+combination of RLE (both 8- and 16-bit) and three back reference methods (similar to LZ77).
+
+Most commands are one byte containing the command number and data size. After the command comes 
+either some data or an offset into the output stream.
+    
+    nnnxxxxx [data]
+
+"Long" commands have a 10-bit size, where the byte after the initial command is the LSB of the
+size (effectively big-endian.)
+
+    111nnnxx xxxxxxxx [data]
+    
+These are mainly used for RLE and uncompressed data, but can be used for long back references 
+(a repetition of more than 32 bytes.) I don't know how often this occurs in practice.
+
+Method 0: write next x+1 bytes (no compression)
+000xxxxx 
+111000xx xxxxxxxx
+
+Method 1: write next byte x+1 times (8-bit RLE)
+001xxxxx
+111001xx xxxxxxxx
+
+Method 2: write next word x+1 times (16-bit RLE)
+010xxxxx
+111010xx xxxxxxxx
+
+Method 3: write sequence of x+1 bytes increasing from next byte (data, data+1, data+2, ...)
+011xxxxx
+111011xx xxxxxxxx
+
+Back references:
+Offset (y) is from start of decompressed data and stored big-endian.
+
+Method 4: write x+1 bytes from uncompressed data starting at offset y
+100xxxxx yyyyyyyyyyyyyyyy
+111100xx xxxxxxxx yyyyyyyyyyyyyyyy
+
+Method 5: write x+1 bytes from uncompressed data starting at offset y with the bits in each byte 
+                in reverse order(?!) (10001000 becomes 00010001, etc.)
+101xxxxx yyyyyyyyyyyyyyyy
+111101xx xxxxxxxx yyyyyyyyyyyyyyyy
+
+Method 6: write x+1 bytes from uncompressed data in reverse order ENDING at offset y
+110xxxxx yyyyyyyyyyyyyyyy
+111110xx xxxxxxxx yyyyyyyyyyyyyyyy
+
+11111111 ($FF): end of data
+
+---------------------------.
+Chunks 1-4: level geometry |
+---------------------------'
+
+Chunk size: (length of level * width of level), max 2048 bytes
+
+Every (width) bytes makes up a row, the southernmost row first (west to east.)
+
+Each byte in chunk 1 represents a tile geometry type (flat, sloped, etc.) For known usable
+values, see the "tile types" section below.
+
+Chunk 2 contains info about the sprites, traps, bumpers, etc. that can be placed on each tile.
+For known usable values, see the "obstacle types" section below.
+
+(Note: the green bumpers stored here are "mid-tile", i.e. they cross through tiles instead
+of bordering them. For "edge" bumpers see chunk 4.)
+
+Chunk 3 contains each tile's relative height, where 0 is the lowest possible height. A level
+editor should probably impose a sane limit for this value, mostly because tile map space is
+limited and excessive height differences could easily use too much space.
+
+This doesn't affect where sprites or tiles are drawn on screen; this chunk (along with the level 
+length and width) should be used to calculate the playfield size and sprite alignment values in 
+the level header, as well as the generation of tilemap data.
+
+Chunk 4 contains info about each tile's borders. Many maps have all zero bytes in this chunk.
+Each tile has a bitfield with these values:
+
+01: bumper on south edge
+02: bumper on east edge
+04: bumper on north edge
+08: bumper on west edge
+
+The next three bits occasionally appear in the original maps, but their purpose is unknown.
+They are never referenced by the game's code at all. These probably had some use within HAL's 
+original tools.
+
+10: unknown, unused in game
+20: unknown, unused in game
+40: unknown, unused in game
+
+Apparently HAL's own level editor used the upper flag for tile layer assignment. 
+For consistency, my editor now does it this way too.
+
+80: terrain is on layer 2
+(for KDC only; STS seems to always put terrain on layer 2 and bumpers on layer 1, except for some
+slope types which seem to be always on layer 1. Separate terrain which "overlaps" on screen is now
+accomplished through new tile graphics which actually show the two areas overlapping, so they do
+not have to be split across two layers.)
+
+--------------------------.
+Chunks 5-9: tile map data |
+--------------------------'
+
+Chunk 5-7 size: (playfield vert size * 2), max 2048 bytes
+Chunk 8-9 size: based on calculated tile data, max 26624 bytes
+
+To save time drawing the maps ingame, the courses use precomposed tilemaps for layers 1 and 2.
+Because of this, any changes made to chunks 1-4 have no effect on the actual appearance of the
+course, even though the level itself is changing.
+
+In this section, assume "playfield" refers to the total scrollable area, not just what is visible
+on screen. Thus the "top" of the playfield is what is seen when scrolled all the way up and so on.
+
+The size of the playfield (and thus probably all of these chunks) is specified in the map header.
+
+Chunks 5/6 consists of the start and end positions for each row of tiles. Each word corresponds to
+a single row of 8x8 tiles and contains the start (chunk 5) and end (chunk 6) positions of each row
+in units of 8 pixels relative to the left edge of the playfield. For rows with no visible tiles,
+the game uses a value of 0xFFFF in both chunks.
+
+Chunk 7 consists of offsets into chunks 8/9, which are the total tilemaps. Each word is the 
+position in chunk 8/9 where tile data begins for the corresponding row of tiles.
+
+Chunks 8-9 consists of the layer 1 and 2 tile data for each row. Each word represents an 8x8 tile
+in the same format used by tile map data in SNES VRAM. The positions in these chunks where each row
+begins are given in chunk 7 (with each row having the same offset and size for both layers).
+
+-------------------------------.
+Chunk 10: sprite clipping data |
+-------------------------------'
+
+Chunk size: At least ((width + length) * 2), entire size depends on number/size of checks, 
+max 2048 bytes
+
+This chunk handles sprite priority checks, which happen whenever Kirby is above a tile of type 0
+(i.e. empty space). This is used to determine if/when to change Kirby's sprite priority so that it
+will be drawn "behind" one or both layers.
+
+This has no bearing on actual collision detection; most of the time it can be replaced with a run
+of (width + length) * 2 bytes of 0xFF, which will usually result in little to no graphical 
+anomalies depending on the layout of the level (and depending on how far out of bounds you fall,
+since going OB outside of the actual dimensions of the level will always reduce Kirby's sprite
+priority.)
+
+(This chunk also seems to always end with the string 0x75 6A 61 ("uja") for some reason. You can
+leave it out when editing levels if you want to.)
+
+This chunk is basically a hash table with (x + y) being the hash function.
+The first (w + l) words are pointers to buckets containing 5-byte structs used to determine
+when Kirby's sprite priority needs to change.
+
+A value of 0xFFFF* for pointer no. 'n' means that Kirby's priority never needs to change at either
+(a, b) nor (b, a) for any values (a, b) for which a + b = n. Note that the fractional parts of the 
+x/y position are also taken into account when calculating a+b.
+
+(* For Special Tee Shot, the "dummy value" is 0x0000, not 0xFFFF.)
+
+Otherwise, the pointer is an offset to a series of these structs within this chunk. 
+
+The first byte of each bucket is the number of individual checks to perform (must be at least 
+0x01 - a value of 0x00 means 65,536 checks, not one!)
+
+Each individual entry is five* bytes long and has the following format:
+
+Offset | Size | Description
+     0 |    1 | Kirby X position lower bound (inclusive)
+     1 |    1 | Kirby X position upper bound (exclusive)
+     2 |    1 | new sprite priority
+     3 |    2 | index into chunk 3 (y * width + x)
+
+Keep in mind that the Y-axis is flipped in the level data relative to how it is expressed in the 
+rest of the document (replace "y" with "length - y - 1" if it helps).
+
+During the check, if Kirby's X position (measured in tiles on the east/west axis) is between the
+upper and lower bounds, the new sprite priority takes effect. The word at offset 3 is the tile 
+number (y * width + x) in chunk 3 which Kirby's Z position is checked against to know when to
+update the sprite priority.
+
+* For Special Tee Shot, each clipping table entry seems to be 11 bytes long instead of 5. I don't
+know how the actual format differs yet.
+
+-----------.
+Tile types |
+-----------'
+
+This is a list of known tile geometry types for chunk 1, taken from KDCEditor source.
+
+const StringMap kirbyGeometry ({
+    {0, "00: None"},
+    {1, "01: Flat"},
+    {2, "02: Four slopes up towards center"},
+
+    //  this type is unusable
+    //  {3, "03: Four slopes down into ground"},
+
+    {4, "04: Slope down towards south"},
+    {5, "05: Slope down towards east"},
+    {6, "06: Slope down towards north"},
+    {7, "07: Slope down towards west"},
+
+    {8, "08: Slopes down towards south and east (inner)"},
+    {9, "09: Slopes down towards north and east (inner)"},
+    {10, "0A: Slopes down towards north and west (inner)"},
+    {11, "0B: Slopes down towards south and west (inner)"},
+
+    {12, "0C: Slopes down towards south and east (outer)"},
+    {13, "0D: Slopes down towards north and east (outer)"},
+    {14, "0E: Slopes down towards north and west (outer)"},
+    {15, "0F: Slopes down towards south and west (outer)"},
+
+    {16, "10: Slope down towards southeast (top)"},
+    {17, "11: Slope down towards northeast (top)"},
+    {18, "12: Slope down towards northwest (top)"},
+    {19, "13: Slope down towards southwest (top)"},
+
+    {20, "14: Slope down towards southeast (bottom)"},
+    {21, "15: Slope down towards northeast (bottom)"},
+    {22, "16: Slope down towards northwest (bottom)"},
+    {23, "17: Slope down towards southwest (bottom)"},
+
+    {24, "18: Slope down towards southeast (middle)"},
+    {25, "19: Slope down towards northeast (middle)"},
+    {26, "1A: Slope down towards northwest (middle)"},
+    {27, "1B: Slope down towards southwest (middle)"}
+});
+
+Example of "outer" vs "inner" 2-way slopes:
+(picture a "donut" water hazard or something)
+ _________
+O~~~~~~~~~O 
+|~~~I  I~~|
+|~~~|  |~~| 
+|~~~I__I~~| 
+O_________O 
+
+"Full" slopes span the entire tile, while the "upper" and "lower" slopes are slopes that 
+"begin" on the upper tile and "end" on the lower tile. For example, the slopes in the corners
+of course 1-1 look something like this:
+
+ U    U
+UL    LU
+
+UL    LU
+ UL  LU
+  U  U
+
+---------------.
+Obstacle types |
+---------------'
+
+This is a list of known "obstacle" values for chunk 2. These objects can be either sprites or
+groups of tiles (usually on layer 2, but not always.)
+
+const StringMap kirbyObstacles ({
+    {0x00, "00: None"},
+
+    {0x02, "02: Whispy Woods"},
+
+    {0x04, "04: Sand trap"},
+    {0x05, "05: Spike pit"},
+
+    /*
+        hole can't be placed independently in KDC
+        (unless it can be placed on obstacle layer w/ correct palette somehow)
+    {0x08, "08: Hole"},
+    */
+
+    {0x0c, "0C: Kirby"},
+    {0x0d, "0D: King Dedede (course 24-1 only)"},
+
+    {0x10, "10: Current (south)"},
+    {0x11, "11: Current (east)"},
+    {0x12, "12: Current (north)"},
+    {0x13, "13: Current (west)"},
+
+    {0x14, "14: Arrow (south)"},
+    {0x15, "15: Arrow (east)"},
+    {0x16, "16: Arrow (north)"},
+    {0x17, "17: Arrow (west)"},
+
+    {0x18, "18: Booster (south)"},
+    {0x19, "19: Booster (east)"},
+    {0x1a, "1A: Booster (north)"},
+    {0x1b, "1B: Booster (west)"},
+
+    {0x1c, "1C: Air vent (north-south)"},
+    {0x1d, "1D: Air vent (east-west)"},
+
+    {0x20, "20: Bounce (use with tile 04)"},
+    {0x21, "21: Bounce (use with tile 05)"},
+    {0x22, "22: Bounce (use with tile 06)"},
+    {0x23, "23: Bounce (use with tile 07)"},
+    {0x24, "24: Bounce"},
+
+    {0x28, "28: Bumper (north to south)"},
+    {0x29, "29: Bumper (east to west)"},
+    {0x2a, "2A: Bumper (south to west)"},
+    {0x2b, "2B: Bumper (north to west)"},
+    {0x2c, "2C: Bumper (north to east)"},
+    {0x2d, "2D: Bumper (south to east)"},
+
+    {0x30, "30: Conveyor belt (south)"},
+    {0x31, "31: Conveyor belt (east)"},
+    {0x32, "32: Conveyor belt (north)"},
+    {0x33, "33: Conveyor belt (west)"},
+
+    {0x34, "34: Conveyor belt (north, use with tile 04)"},
+    {0x35, "35: Conveyor belt (south, use with tile 04)"},
+    {0x36, "36: Conveyor belt (west, use with tile 05)"},
+    {0x37, "37: Conveyor belt (east, use with tile 05)"},
+    {0x38, "38: Conveyor belt (south, use with tile 06)"},
+    {0x39, "39: Conveyor belt (north, use with tile 06)"},
+    {0x3a, "3A: Conveyor belt (east, use with tile 07)"},
+    {0x3b, "3B: Conveyor belt (west, use with tile 07)"},
+
+    {0x40, "40: Waddle Dee"},
+    {0x41, "41: Rocky"},
+    {0x42, "42: Waddle Doo"},
+    {0x43, "43: Flamer"},
+    {0x44, "44: Spiney"},
+    {0x45, "45: Twister"},
+    {0x46, "46: Wheelie"},
+    {0x47, "47: Sparky"},
+    {0x48, "48: Starman"},
+    {0x49, "49: Chilly"},
+    {0x4a, "4A: Broom Hatter"},
+    {0x4b, "4B: Squishy"},
+    {0x4c, "4C: Kabu"},
+    {0x4d, "4D: Gaspar"},
+    {0x4e, "4E: Pumpkin"},
+    {0x4f, "4F: UFO"},
+    {0x50, "50: Gaspar (higher)"},
+    {0x51, "51: Pumpkin (higher)"},
+    {0x52, "52: UFO (higher)"},
+    {0x57, "57: Transformer"},
+
+    {0x58, "58: Mr. Bright switch"},
+    {0x59, "59: Mr. Shine switch"},
+    {0x5a, "5A: Rotating space switch (off)"},
+    {0x5b, "5B: Rotating space switch (on)"},
+    {0x5c, "5C: Water switch (on)"},
+    {0x5d, "5D: Water switch (off)"},
+
+    {0x61, "61: Water hazard"},
+    {0x64, "64: Water hazard (use with tile 04)"},
+    {0x65, "65: Water hazard (use with tile 05)"},
+    {0x66, "66: Water hazard (use with tile 06)"},
+    {0x67, "67: Water hazard (use with tile 07)"},
+    {0x68, "68: Water hazard (use with tile 08)"},
+    {0x69, "69: Water hazard (use with tile 09)"},
+    {0x6a, "6A: Water hazard (use with tile 0A)"},
+    {0x6b, "6B: Water hazard (use with tile 0B)"},
+    {0x6c, "6C: Water hazard (use with tile 0C)"},
+    {0x6d, "6D: Water hazard (use with tile 0D)"},
+    {0x6e, "6E: Water hazard (use with tile 0E)"},
+    {0x6f, "6F: Water hazard (use with tile 0F)"},
+
+    /*
+          Most of these are not used in KDC.
+    */
+    {0x70, "70: Rotating space (clockwise, always on)"},
+    {0x71, "71: Rotating space (counterclockwise, always on)"},
+    {0x72, "72: Rotating space (clockwise, always on, slow)"},
+    {0x73, "73: Rotating space (counterclockwise, always on, slow)"},
+    {0x74, "74: Rotating space (clockwise, switch)"},
+    {0x75, "75: Rotating space (counterclockwise, switch)"},
+    {0x76, "76: Rotating space (clockwise, switch, slow)"},
+    {0x77, "77: Rotating space (counterclockwise, switch, slow)"},
+    {0x78, "78: Rotating space (clockwise, switch-opposite)"},
+    {0x79, "79: Rotating space (counterclockwise, switch-opposite)"},
+    {0x7a, "7A: Rotating space (clockwise, switch-opposite, slow)"},
+    {0x7b, "7B: Rotating space (counterclockwise, switch-opposite, slow)"},
+
+    {0x80, "80: Gordo (moves south, faces south)"},
+    {0x81, "81: Gordo (moves east, faces south)"},
+    {0x82, "82: Gordo (moves north, faces south)"},
+    {0x83, "83: Gordo (moves west, faces south)"},
+    {0x84, "84: Gordo (moves south, faces east)"},
+    {0x85, "85: Gordo (moves east, faces east)"},
+    {0x86, "86: Gordo (moves north, faces east)"},
+    {0x87, "87: Gordo (moves west, faces east)"},
+    {0x88, "88: Gordo (moves south, faces north)"},
+    {0x89, "89: Gordo (moves east, faces north)"},
+    {0x8a, "8A: Gordo (moves north, faces north)"},
+    {0x8b, "8B: Gordo (moves west, faces north)"},
+    {0x8c, "8C: Gordo (moves south, faces west)"},
+    {0x8d, "8D: Gordo (moves east, faces west)"},
+    {0x8e, "8E: Gordo (moves north, faces west)"},
+    {0x8f, "8F: Gordo (moves west, faces west)"},
+
+    {0x90, "90: Gordo (moves up/down, faces south)"},
+    {0x91, "91: Gordo (moves up/down, faces east)"},
+    {0x92, "92: Gordo (moves up/down, faces north)"},
+    {0x93, "93: Gordo (moves up/down, faces west)"},
+    {0x94, "94: Gordo (moves down/up, faces south)"},
+    {0x95, "95: Gordo (moves down/up, faces east)"},
+    {0x96, "96: Gordo (moves down/up, faces north)"},
+    {0x97, "97: Gordo (moves down/up, faces west)"},
+
+    {0x98, "98: Gordo path (north-south)"},
+    {0x99, "99: Gordo path (east-west)"},
+    {0x9a, "9A: Gordo path (northwest corner)"},
+    {0x9b, "9B: Gordo path (southwest corner)"},
+    {0x9c, "9C: Gordo path (southeast corner)"},
+    {0x9d, "9D: Gordo path (northeast corner)"},
+    {0x9e, "9E: Gordo endpoint (south)"},
+    {0x9f, "9F: Gordo endpoint (east)"},
+    {0xa0, "A0: Gordo endpoint (north)"},
+    {0xa1, "A1: Gordo endpoint (west)"},
+
+    {0xac, "AC: Kracko (no lightning)"},
+    {0xad, "AD: Kracko (lightning 1)"},
+    {0xae, "AE: Kracko (lightning 2)"},
+
+    {0xb0, "B0: Blue warp 1 (south)"},
+    {0xb1, "B1: Blue warp 1 (east)"},
+    {0xb2, "B2: Blue warp 1 (north)"},
+    {0xb3, "B3: Blue warp 1 (west)"},
+    {0xb4, "B4: Blue warp 2 (south)"},
+    {0xb5, "B5: Blue warp 2 (east)"},
+    {0xb6, "B6: Blue warp 2 (north)"},
+    {0xb7, "B7: Blue warp 2 (west)"},
+    {0xb8, "B8: Red warp 1"},
+    {0xb9, "B9: Red warp 2"},
+
+    {0xc0, "C0: Starting line (west end)"},
+    {0xc1, "C1: Starting line"},
+    {0xc2, "C2: Starting line (east end)"},
+    {0xc3, "C3: Kirby (course 24-1 only)"},
+});
