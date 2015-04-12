@@ -108,10 +108,10 @@ This is the only uncompressed part of the level data and contains various basic 
 It is 28(?) bytes large, but the game copies 32 bytes.
 
 Offset | Size | Description
-     0 |    2 | unknown
+     0 |    2 | unknown*
      2 |    2 | width of level (east to west)
      4 |    2 | length of level (north to south)
-     6 |    2 | unknown (possibly unused)
+     6 |    2 | unused
 
      8 |    2 | horizontal size of playfield (units of 8 pixels)
 				this is calculated as 4 * (w + l)
@@ -131,6 +131,11 @@ Offset | Size | Description
     16 |   12 | map ID string (normally "MAPxx" padded with spaces)
                 this probably is unused by the game so it can be used by an editor to
                 store some editor-specific metadata, or any other hack-related things
+
+* this unknown field is weird; the game checks if it's below a certain value (which is calculated
+based on some property of the level that I don't remember any more) and if the value in the header
+is lower, then Gordo path objects behave like invisible Gordos that damage the player (for some
+reason...) KDCEditor just sets this value to 0xFFFF always.
 
 -----------------.
 Compression info |
