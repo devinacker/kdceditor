@@ -9,7 +9,7 @@
 #include "romfile.h"
 #include <cstdint>
 
-#include <QThread>
+#include <QThreadPool>
 #include <QList>
 #include <QByteArray>
 #include <QMessageBox>
@@ -126,15 +126,15 @@ uint          levelHeight(const leveldata_t *level);
 bool          waterLevel(const leveldata_t *level);
 
 /*
- * Worker threads for generating compressed level data
+ * Worker objects for generating compressed level data
 */
-class SaveWorker : public QThread {
-    Q_OBJECT
+class SaveWorker : public QRunnable {
 
 public:
-    SaveWorker(leveldata_t *level, QObject *parent = 0)
-        : QThread(parent), level(level) {
-        this->start();
+    SaveWorker(leveldata_t *level)
+        : level(level) {
+        this->setAutoDelete(false);
+        QThreadPool::globalInstance()->start(this);
     }
 
     ~SaveWorker() {
@@ -143,13 +143,17 @@ public:
         }
     }
 
-    QList<QByteArray*> getChunks() {
-        this->wait();
+    void run() {
+        chunks = saveLevel(level, &fieldSize);
+    }
+
+    const QList<QByteArray*>& getChunks() const {
+        QThreadPool::globalInstance()->waitForDone();
         return chunks;
     }
 
-    int getFieldSize() {
-        this->wait();
+    int getFieldSize() const {
+        QThreadPool::globalInstance()->waitForDone();
         return fieldSize;
     }
 
@@ -158,10 +162,6 @@ protected:
     leveldata_t *level;
     int fieldSize;
 
-    void run() {
-        chunks = saveLevel(level, &fieldSize);
-        this->quit();
-    }
 };
 
 #endif // LEVEL_H

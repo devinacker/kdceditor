@@ -341,7 +341,7 @@ uint saveAllLevels(ROMFile& file, leveldata_t **levels) {
 
         if (!workers[num]) continue;
 
-        QList<QByteArray*> chunks = workers[num]->getChunks();
+        const QList<QByteArray*>& chunks = workers[num]->getChunks();
         QByteArray *data;
 
         int fieldSize = workers[num]->getFieldSize();
