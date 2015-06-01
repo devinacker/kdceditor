@@ -694,6 +694,8 @@ void MainWindow::loadLevelFromFile() {
         }
 
         leveldata_t *lev = levels[level];
+
+        memset((void*)lev, 0, sizeof(leveldata_t));
         lev->header = tempHeader;
 
         // load tile data
@@ -829,6 +831,7 @@ void MainWindow::loadCourseFromFile() {
                 continue;
             }
 
+            memset((void*)lev, 0, sizeof(leveldata_t));
             lev->header = tempHeader;
 
             // load tile data
