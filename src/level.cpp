@@ -239,7 +239,8 @@ QList<QByteArray*> saveLevel(leveldata_t *level, int *fieldSize) {
     chunks.append(new QByteArray((const char*)packed, packedSize));
 
     // step 6: create packed playfield tilemaps and write them
-    uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH];
+    auto playfield = new uint16_t[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH];
+
     makeIsometricMap(playfield, level);
 
     uint16_t rowStarts [CHUNK_SIZE / 2] = {0};
@@ -286,6 +287,8 @@ QList<QByteArray*> saveLevel(leveldata_t *level, int *fieldSize) {
 
         index += rowLen;
     }
+
+    delete[] playfield;
 
     if (fieldSize) {
         *fieldSize = index * 2;
