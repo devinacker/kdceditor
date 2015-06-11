@@ -1,3 +1,7 @@
+v1.13c [2015-06-10]
+Fix some occasional minor issues when loading/saving files
+    (including memory access issues when saving on OS X)
+
 v1.13b [2015-03-29]
 Fixed occasional broken tiles for terrain 09 and 0C when placed against higher slopes
 
