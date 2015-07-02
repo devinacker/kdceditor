@@ -680,17 +680,15 @@ void MainWindow::loadLevelFromFile() {
 
         // load level header
         header_t tempHeader;
+        tempHeader.width = tempHeader.length = 0;
+
         file.read((char*)&tempHeader, sizeof(header_t));
 
-        if (tempHeader.width * tempHeader.length > MAX_2D_AREA) {
-            QMessageBox::StandardButton button = QMessageBox::warning(0,
-                                                  QString("Error"),
-                                                  QString("Unable to load level due to an invalid level size. The course may be corrupted.\n\nContinue loading?"),
-                                                  QMessageBox::Yes | QMessageBox::No);
-
-            if (button == QMessageBox::No) {
-                return;
-            }
+        uint tempArea = tempHeader.width * tempHeader.length;
+        if (!tempArea || tempArea > MAX_2D_AREA) {
+            QMessageBox::warning(0,
+                              tr("Error"),
+                              tr("Unable to load level due to an invalid level size. The course may be corrupted."));
         }
 
         leveldata_t *lev = levels[level];
@@ -786,6 +784,7 @@ void MainWindow::loadCourseFromFile() {
     if (!newFileName.isNull() && file.open(QIODevice::ReadOnly)) {
         int courseStart = course * 8;
         coursefile_t info;
+        memset(&info, 0, sizeof(coursefile_t));
 
         file.seek(0);
 
@@ -807,8 +806,8 @@ void MainWindow::loadCourseFromFile() {
         for (int i = 0; i < 8; i++) {
             leveldata_t *lev = levels[courseStart + i];
 
-            // pointer value of 0xFFFFFFFF = don't load this one
-            if (info.levelPtr[i] == 0xFFFFFFFF) continue;
+            // pointer value of 0 = don't load this one
+            if (!info.levelPtr[i]) continue;
 
             // otherwise, seek and load
             file.seek(info.levelPtr[i]);
@@ -817,10 +816,11 @@ void MainWindow::loadCourseFromFile() {
             header_t tempHeader;
             file.read((char*)&tempHeader, sizeof(header_t));
 
-            if (tempHeader.width * tempHeader.length > MAX_2D_AREA) {
+            uint tempArea = tempHeader.width * tempHeader.length;
+            if (!tempArea || tempArea > MAX_2D_AREA) {
                 QMessageBox::StandardButton button = QMessageBox::warning(0,
-                                                      QString("Error"),
-                                                      QString("Unable to load level %1 due to an invalid level size. The course may be corrupted.\n\nContinue loading?")
+                                                      tr("Error"),
+                                                      tr("Unable to load level %1 due to an invalid level size. The course may be corrupted.\n\nContinue loading?")
                                                       .arg(i + 1),
                                                       QMessageBox::Yes | QMessageBox::No);
 
@@ -901,9 +901,8 @@ void MainWindow::saveCourseToFile() {
 //            if (lev->modified) {
                 info.levelPtr[i] = offset;
                 // generate next pointer values based on size of current level
-//              offset += sizeof(header_t) + (lev->header.width * lev->header.length * sizeof(maptile_t));
                 offset += sizeof(header_t) + (lev->header.width * lev->header.length * 4);
-//            } else info.levelPtr[i] = 0xFFFFFFFF;
+//            } else info.levelPtr[i] = 0;
         }
 
         // write level header
@@ -1018,7 +1017,7 @@ void MainWindow::setLevel(int level) {
     previewWin->refresh();
 
     // display the level name in the toolbar label
-    levelLabel->setText(QString(" Level %1 - %2 (%3)")
+    levelLabel->setText(tr(" Level %1 - %2 (%3)")
                         .arg((level / 8) + 1, 2).arg((level % 8) + 1, 2)
                         .arg(courseNames[game][level / 8]));
 }

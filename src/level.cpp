@@ -510,6 +510,10 @@ void makeIsometricMap(uint16_t playfield[2][MAX_FIELD_HEIGHT][MAX_FIELD_WIDTH], 
 
     int h = levelHeight(level);
     int l = level->header.length;
+    int w = level->header.width;
+
+    level->header.fieldHeight = qMin(MAX_FIELD_HEIGHT, 2 * (h + w + l + 2));
+    level->header.fieldWidth  = qMin(MAX_FIELD_WIDTH, 4 * (w + l));
 
     // render "back to front" - that is, from north to south, west to east
     for (int x = 0; x < level->header.width; x++) {

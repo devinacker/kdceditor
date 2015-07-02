@@ -47,11 +47,9 @@ void PreviewScene::refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_
     int mapHeight = levelHeight(level);
     int mapWidth = level->header.width;
     int mapLength = level->header.length;
-    level->header.fieldHeight = 2 * (mapHeight + mapWidth + mapLength + 2);
-    level->header.fieldWidth  = 4 * (mapWidth + mapLength);
 
-    int width = level->header.fieldWidth;
-    int height = level->header.fieldHeight;
+    int width = qMin(MAX_FIELD_WIDTH, (int)level->header.fieldWidth);
+    int height = qMin(MAX_FIELD_HEIGHT, (int)level->header.fieldHeight);
 
     // reset the scene (remove all members)
     this->clear();

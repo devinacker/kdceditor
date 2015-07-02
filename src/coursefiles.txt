@@ -9,7 +9,7 @@ Offset  Size  Description
      7     1  Water palette
      8     8  Music list (one byte per level)
     16   4*8  Pointers to individual levels in file
-              (a pointer of 0xFFFFFFFF means level is not present in file; don't try to load it)
+              (a null pointer means level is not present in file; don't try to load it)
 
 Each individual level consists of the header, followed by the tile data as maptile_t:
 (west to east, north to south, w * l * 4 bytes)
