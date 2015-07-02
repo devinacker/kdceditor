@@ -135,11 +135,14 @@ size_t ROMFile::readBytes(uint addr, uint size, void *buffer) {
     if (!size) {
         char packed[DATA_SIZE];
         this->seek(toOffset(addr));
-        this->read(packed, DATA_SIZE);
-        return unpack((uint8_t*)packed, (uint8_t*)buffer);
+        if (this->read(packed, DATA_SIZE) > 0)
+            return unpack((uint8_t*)packed, (uint8_t*)buffer);
+        else
+            return 0;
+
     } else {
         this->seek(toOffset(addr));
-        return read((char*)buffer, size);
+        return qMax(read((char*)buffer, size), 0);
     }
 }
 
