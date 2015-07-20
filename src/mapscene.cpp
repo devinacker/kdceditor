@@ -355,7 +355,7 @@ void MapScene::lowerTiles() {
             if(level->tiles[selY + i][selX + j].height > 0) {
                level->tiles[selY + i][selX + j].height -= 1;
                changed = true;
-            } else
+            } else      //if the tile is already at 0 and not blank, delete it
                 if(level->tiles[selY + i][selX + j].geometry) {
                    level->tiles[selY + i][selX + j] = noTile;
                    changed = true;
