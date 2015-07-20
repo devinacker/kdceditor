@@ -95,6 +95,8 @@
     <addaction name="action_Delete"/>
     <addaction name="separator"/>
     <addaction name="action_Edit_Tiles"/>
+    <addaction name="action_Raise_Tiles"/>
+    <addaction name="action_Lower_Tiles"/>
    </widget>
    <widget class="QMenu" name="menuLevel">
     <property name="title">
@@ -470,6 +472,22 @@
   <action name="action_Save_Level_to_File">
    <property name="text">
     <string>Save Level to File...</string>
+   </property>
+  </action>
+  <action name="action_Raise_Tiles">
+   <property name="text">
+    <string>Raise Tiles</string>
+   </property>
+   <property name="shortcut">
+    <string>=</string>
+   </property>
+  </action>
+  <action name="action_Lower_Tiles">
+   <property name="text">
+    <string>Lower Tiles</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
    </property>
   </action>
  </widget>

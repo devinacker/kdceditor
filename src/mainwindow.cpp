@@ -131,6 +131,10 @@ void MainWindow::setupSignals() {
                      scene, SLOT(deleteTiles()));
     QObject::connect(ui->action_Edit_Tiles, SIGNAL(triggered()),
                      scene, SLOT(editTiles()));
+    QObject::connect(ui->action_Raise_Tiles, SIGNAL(triggered()),
+                     scene, SLOT(raiseTiles()));
+    QObject::connect(ui->action_Lower_Tiles, SIGNAL(triggered()),
+                     scene, SLOT(lowerTiles()));
 
     QObject::connect(scene, SIGNAL(edited()),
                      previewWin, SLOT(refresh()));
@@ -289,6 +293,8 @@ void MainWindow::setEditActions(bool val) {
     ui->action_Copy            ->setEnabled(val);
     ui->action_Paste           ->setEnabled(val);
     ui->action_Delete          ->setEnabled(val);
+    ui->action_Raise_Tiles     ->setEnabled(val);
+    ui->action_Lower_Tiles     ->setEnabled(val);
     ui->action_Close_ROM       ->setEnabled(val);
     ui->action_Open_ROM        ->setEnabled(val);
     ui->action_Save_ROM        ->setEnabled(val);
