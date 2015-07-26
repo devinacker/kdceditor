@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include <cstring>
 
@@ -94,7 +95,8 @@ bool ROMFile::openROM(OpenMode flags) {
     if (!this->open(flags))
         return false;
 
-    QSettings settings("settings.ini", QSettings::IniFormat, this);
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.ini",
+                       QSettings::IniFormat, this);
     char buf[6];
     uint8_t region = readByte(0xFFD9);
     bool debug = settings.value("MainWindow/debug", false).toBool();
@@ -142,7 +144,7 @@ size_t ROMFile::readBytes(uint addr, uint size, void *buffer) {
 
     } else {
         this->seek(toOffset(addr));
-        return qMax(read((char*)buffer, size), 0);
+        return qMax((int)read((char*)buffer, size), 0);
     }
 }
 
