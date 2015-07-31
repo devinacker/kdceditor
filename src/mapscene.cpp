@@ -299,6 +299,85 @@ void MapScene::deleteTiles() {
                        .arg(selY + selLength - 1));
 }
 
+//Raise selected tiles up by one
+void MapScene::raiseTiles() {
+    // if there is no selection, don't do anything
+    if (selWidth == 0 || selLength == 0) return;
+
+    MapChange *edit = new MapChange(level, selX, selY, selWidth, selLength);
+    edit->setText("raise");
+
+    bool changed = false;
+
+    // raise tiles (unless already max), and create them in empty spaces
+    for (int i = 0; i < selLength && selY + i < MAX_2D_SIZE; i++) {
+        for (int j = 0; j < selWidth && selX + j < MAX_2D_SIZE; j++) {
+            if(level->tiles[selY + i][selX + j].geometry == 0) {
+               level->tiles[selY + i][selX + j].geometry = 1;
+               level->tiles[selY + i][selX + j].height = 0;
+               changed = true;
+            } else
+                if(level->tiles[selY + i][selX + j].height < MAX_HEIGHT) {
+                   level->tiles[selY + i][selX + j].height += 1;
+                   changed = true;
+                }
+        }
+    }
+
+    //only push to undo stack if something happened (to avoid undo's that do nothing)
+    if(changed) {
+        stack.push(edit);
+        emit edited();
+
+        emit statusMessage(QString("Raised (%1, %2) to (%3, %4)")
+                       .arg(selX).arg(selY)
+                       .arg(selX + selWidth - 1)
+                       .arg(selY + selLength - 1));
+    } else {
+        emit statusMessage(QString("Nothing selected can raise"));
+        delete edit;
+    }
+}
+
+//Lower selected tiles by one, or remove if already 0 (lowered to nothing)
+void MapScene::lowerTiles() {
+    // if there is no selection, don't do anything
+    if (selWidth == 0 || selLength == 0) return;
+
+    MapChange *edit = new MapChange(level, selX, selY, selWidth, selLength);
+    edit->setText("lower");
+
+    bool changed = false;
+
+    // lower or remove tiles
+    for (int i = 0; i < selLength && selY + i < MAX_2D_SIZE; i++) {
+        for (int j = 0; j < selWidth && selX + j < MAX_2D_SIZE; j++) {
+            if(level->tiles[selY + i][selX + j].height > 0) {
+               level->tiles[selY + i][selX + j].height -= 1;
+               changed = true;
+            } else      //if the tile is already at 0 and not blank, delete it
+                if(level->tiles[selY + i][selX + j].geometry) {
+                   level->tiles[selY + i][selX + j] = noTile;
+                   changed = true;
+            }
+        }
+    }
+
+    //only push to undo stack if something happened (to avoid undo's that do nothing)
+    if(changed) {
+        stack.push(edit);
+        emit edited();
+
+        emit statusMessage(QString("Lowered (%1, %2) to (%3, %4)")
+                       .arg(selX).arg(selY)
+                       .arg(selX + selWidth - 1)
+                       .arg(selY + selLength - 1));
+    } else {
+        emit statusMessage(QString("Nothing to lower"));
+        delete edit;
+    }
+}
+
 /*
   Start a new selection on the map scene.
   Called when the mouse is clicked outside of any current selection.

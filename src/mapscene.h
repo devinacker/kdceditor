@@ -64,6 +64,8 @@ public slots:
     void copy();
     void paste();
     void deleteTiles();
+    void raiseTiles();
+    void lowerTiles();
     void refresh();
 
 signals:
