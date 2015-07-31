@@ -60,6 +60,7 @@ MapScene::MapScene(QWidget *parent, leveldata_t *currentLevel)
     unknown.load (":images/unknown.png");
 
     this->setMouseTracking(true);
+    this->setFocusPolicy(Qt::WheelFocus);
 
     QObject::connect(this, SIGNAL(edited()),
                      this, SLOT(refresh()));
@@ -81,15 +82,18 @@ void MapScene::editTiles() {
     else delete edit;
 
     // redraw the map scene with the new properties
+    tileX = tileY = -1;
     emit edited();
 }
 
 /*
   Redraw the scene
 */
-void MapScene::refresh() {
-    tileX = -1;
-    tileY = -1;
+void MapScene::refresh(bool keepMouse) {
+    if (!keepMouse)
+    {
+        tileX = tileY = -1;
+    }
     setMinimumSize(level->header.width * TILE_SIZE + 1, level->header.length * TILE_SIZE + 1);
     setMaximumSize(this->minimumSize());
     updateGeometry();
@@ -160,6 +164,33 @@ void MapScene::mouseMoveEvent(QMouseEvent *event) {
     }
 
     event->accept();
+}
+
+/*
+ *Handle input from the mouse wheel
+ */
+void MapScene::wheelEvent(QWheelEvent *event)
+{
+    // TODO: enable/disable this with a setting?
+    if (tileX >= selX && tileX < (selX + selWidth)
+       && tileY >= selY && tileY < (selY + selLength)
+       && event->orientation() == Qt::Vertical) {
+
+        int steps = event->delta() / (8 * 15);
+
+        if (!steps) {
+            event->ignore();
+        } else if (steps > 0) {
+            raiseTiles();
+            event->accept();
+        } else {
+            lowerTiles();
+            event->accept();
+        }
+
+    } else {
+        event->ignore();
+    }
 }
 
 /*
@@ -456,7 +487,7 @@ void MapScene::showTileInfo(QMouseEvent *event) {
         return;
 
     QPointF pos = event->pos();
-    // if hte mouse is moved onto a different tile, erase the old one
+    // if the mouse is moved onto a different tile, erase the old one
     // and draw the new one
     if (floor(pos.x() / TILE_SIZE) != tileX || floor(pos.y() / TILE_SIZE) != tileY) {
         tileX = floor(pos.x() / TILE_SIZE);

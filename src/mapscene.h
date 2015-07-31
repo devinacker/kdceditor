@@ -66,7 +66,7 @@ public slots:
     void deleteTiles();
     void raiseTiles();
     void lowerTiles();
-    void refresh();
+    void refresh(bool keepMouse = true);
 
 signals:
     void doubleClicked();
@@ -79,6 +79,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
     void paintEvent(QPaintEvent *event);
 };
 

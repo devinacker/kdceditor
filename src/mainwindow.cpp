@@ -18,6 +18,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QStandardPaths>
+#include <QEvent>
 
 #include <algorithm>
 #include <cstdio>
@@ -625,7 +626,7 @@ int MainWindow::closeFile() {
     currentLevel.modifiedRecently = false;
 
     scene->cancelSelection();
-    scene->refresh();
+    scene->refresh(false);
     scene->clearStack();
     previewWin->refresh();
     previewWin->hide();
@@ -952,7 +953,7 @@ void MainWindow::levelProperties() {
                    &waterPalette[course]);
 
     // update 2D and 3D displays
-    scene->refresh();
+    scene->refresh(false);
     previewWin->refresh();
 }
 
@@ -1016,7 +1017,7 @@ void MainWindow::setLevel(int level) {
 
     // set up the graphics view
     scene->cancelSelection();
-    scene->refresh();
+    scene->refresh(false);
     scene->clearStack();
     setUndoRedoActions(false);
 
