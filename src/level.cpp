@@ -271,7 +271,7 @@ QList<QByteArray*> saveLevel(leveldata_t *level, int *fieldSize) {
         rowLen = end - start + 1;
 
         // copy playfield row into pack buffer if there is enough room
-        if (start != level->header.fieldWidth && index + rowLen < (BIG_CHUNK_SIZE / 2)) {
+        if (start != level->header.fieldWidth && index + rowLen <= (BIG_CHUNK_SIZE / 2)) {
             memcpy(&layer[0][index], &(playfield[0][row][start]), rowLen * 2);
             memcpy(&layer[1][index], &(playfield[1][row][start]), rowLen * 2);
 
@@ -293,6 +293,8 @@ QList<QByteArray*> saveLevel(leveldata_t *level, int *fieldSize) {
     if (fieldSize) {
         *fieldSize = index * 2;
     }
+
+    index = qMin(index, BIG_CHUNK_SIZE / 2);
 
     // step 7: write playfield chunks
     packedSize = pack((uint8_t*)&rowStarts[0], level->header.fieldHeight * 2, packed, 1);
