@@ -38,7 +38,6 @@ PreviewWindow::PreviewWindow(QWidget *parent, leveldata_t *currentLevel) :
 PreviewWindow::~PreviewWindow()
 {
     delete ui;
-    delete scene;
 }
 
 void PreviewWindow::setLevel(leveldata_t *level) {

@@ -96,10 +96,6 @@ MainWindow::~MainWindow()
 {
     saveSettings();
     delete ui;
-    delete levelLabel;
-    delete scene;
-    delete previewWin;
-    delete settings;
 }
 
 void MainWindow::setupSignals() {
