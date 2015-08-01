@@ -614,9 +614,7 @@ int MainWindow::closeFile() {
 
     // deallocate all level data
     for (int i = 0; i < 224; i++) {
-        if (levels[i])
-            free(levels[i]);
-
+        delete levels[i];
         levels[i] = NULL;
     }
 
@@ -699,8 +697,7 @@ void MainWindow::loadLevelFromFile() {
         }
 
         leveldata_t *lev = levels[level];
-
-        memset((void*)lev, 0, sizeof(leveldata_t));
+        *lev = leveldata_t();
         lev->header = tempHeader;
 
         // load tile data
@@ -790,8 +787,7 @@ void MainWindow::loadCourseFromFile() {
 
     if (!newFileName.isNull() && file.open(QIODevice::ReadOnly)) {
         int courseStart = course * 8;
-        coursefile_t info;
-        memset(&info, 0, sizeof(coursefile_t));
+        coursefile_t info = coursefile_t();
 
         file.seek(0);
 
@@ -838,7 +834,7 @@ void MainWindow::loadCourseFromFile() {
                 continue;
             }
 
-            memset((void*)lev, 0, sizeof(leveldata_t));
+            *lev = leveldata_t();
             lev->header = tempHeader;
 
             // load tile data

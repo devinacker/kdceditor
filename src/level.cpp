@@ -82,8 +82,7 @@ bool waterLevel(const leveldata_t *level) {
   Returns null if a level failed and the user decided not to continue.
 */
 leveldata_t* loadLevel (ROMFile& file, uint num) {
-    leveldata_t *level = (leveldata_t*)malloc(sizeof(leveldata_t));
-    memset((void*)level, 0, sizeof(leveldata_t));
+    leveldata_t *level = new leveldata_t();
 
     ROMFile::version_e ver = file.getVersion();
     ROMFile::game_e    game = file.getGame();
@@ -119,7 +118,7 @@ leveldata_t* loadLevel (ROMFile& file, uint num) {
                                               QMessageBox::Yes | QMessageBox::No);
 
         if (button == QMessageBox::No) {
-            free(level);
+            delete level;
             return NULL;
         }
 
