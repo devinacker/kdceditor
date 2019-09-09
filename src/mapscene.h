@@ -81,6 +81,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
     void paintEvent(QPaintEvent *event);
+  void dropEvent(QDropEvent *event);
+  void dragEnterEvent(QDragEnterEvent *event);
 };
 
 #endif // MAPSCENE_H

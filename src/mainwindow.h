@@ -1,6 +1,6 @@
 /*
-    This code is released under the terms of the MIT license.
-    See COPYING.txt for details.
+  This code is released under the terms of the MIT license.
+  See COPYING.txt for details.
 */
 
 #ifndef MAINWINDOW_H
@@ -16,98 +16,101 @@
 #include "level.h"
 #include "previewwindow.h"
 
+#include "object_list_window.h"
+
 namespace Ui {
 class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
-    
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+  Q_OBJECT
 
-protected slots:
-    // file menu
-    void openFile();
-    void saveFile();
-    void saveFileAs();
-    int  closeFile();
+ public:
+  explicit MainWindow(QWidget *parent = 0);
+  ~MainWindow();
 
-    void setUnsaved();
+ protected slots:
+  // file menu
+  void openFile();
+  void saveFile();
+  void saveFileAs();
+  int  closeFile();
 
-    // level menu
-    void loadLevelFromFile();
-    void saveLevelToFile();
-    void loadCourseFromFile();
-    void saveCourseToFile();
+  void setUnsaved();
 
-    void saveCurrentLevel();
+  // level menu
+  void loadLevelFromFile();
+  void saveLevelToFile();
+  void loadCourseFromFile();
+  void saveCourseToFile();
 
-    void levelProperties();
+  void saveCurrentLevel();
 
-    void selectCourse();
-    void prevLevel();
-    void nextLevel();
-    void prevCourse();
-    void nextCourse();
+  void levelProperties();
 
-    // help menu
-    void showHelp();
-    void showAbout();
+  void selectCourse();
+  void prevLevel();
+  void nextLevel();
+  void prevCourse();
+  void nextCourse();
 
-    // display text on the statusbar
-    void status(const QString &msg);
+  // help menu
+  void showHelp();
+  void showAbout();
 
-    // debug menu crap
-    void dumpLevel();
-    
-    // toolbar updates
-    void setOpenFileActions(bool val);
-    void setEditActions(bool val);
-    void setUndoRedoActions(bool val = true);
-    void setLevelChangeActions(bool val);
+  // display text on the statusbar
+  void status(const QString &msg);
 
-protected:
-    void closeEvent(QCloseEvent *);
+  // debug menu crap
+  void dumpLevel();
 
-private:
-    Ui::MainWindow *ui;
+  // toolbar updates
+  void setOpenFileActions(bool val);
+  void setEditActions(bool val);
+  void setUndoRedoActions(bool val = true);
+  void setLevelChangeActions(bool val);
 
-    QSettings *settings;
+ protected:
+  void closeEvent(QCloseEvent *);
 
-    // Information about the currently open file
-    QString fileName;
-    ROMFile rom;
-    bool    fileOpen, unsaved, saving;
+ private:
+  Ui::MainWindow *ui;
 
-    // The level data (28 courses, 8 holes each)
-    int          level;
-    leveldata_t* levels[224];
-    leveldata_t  currentLevel;
-    QLabel *levelLabel;
+  QSettings *settings;
 
-    // course background/palette settings
-    // (background selectiosn repeat every 8 courses)
-    int    background[8];
-    int    palette[28];
-    int    waterPalette[28];
+  // Information about the currently open file
+  QString fileName;
+  ROMFile rom;
+  bool    fileOpen, unsaved, saving;
 
-    // renderin stuff
-    MapScene *scene;
-    // the preview window
-    PreviewWindow *previewWin;
+  // The level data (28 courses, 8 holes each)
+  int          level;
+  leveldata_t* levels[224];
+  leveldata_t  currentLevel;
+  QLabel *levelLabel;
 
-    // various funcs
-    void setupSignals();
-    void setupActions();
-    void getSettings();
-    void saveSettings();
-    void updateTitle();
-    void setLevel(int);
-    QMessageBox::StandardButton checkSaveLevel();
-    QMessageBox::StandardButton checkSaveROM();
+  // course background/palette settings
+  // (background selectiosn repeat every 8 courses)
+  int    background[8];
+  int    palette[28];
+  int    waterPalette[28];
+
+  // renderin stuff
+  MapScene *scene;
+  // the preview window
+  PreviewWindow *previewWin;
+  ObjectListWindow* objectListWindow;
+
+  // various funcs
+  void setupSignals();
+  void setupActions();
+  void getSettings();
+  void saveSettings();
+  void updateTitle();
+  void setLevel(int);
+  QMessageBox::StandardButton checkSaveLevel();
+  QMessageBox::StandardButton checkSaveROM();
 };
 
 #endif // MAINWINDOW_H
