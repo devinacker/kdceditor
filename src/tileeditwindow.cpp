@@ -157,22 +157,6 @@ int TileEditWindow::startEdit(leveldata_t *level, QRect sel) {
     return this->exec();
 }
 
-/*
-  This array maps conveyor belt types to their counterparts for the different slope types.
-  Dimension 1 is the belt direction, dimension 2 is the slope direction
-*/
-const stuff::type_e conveyorMap[4][4] = {
-//slope      south          east          north          west
-//beltSouth
-            {beltSouthDown, nothing,      beltSouthUp,   nothing},
-//beltEast
-            {nothing,       beltEastDown, nothing,       beltEastUp},
-//beltNorth
-            {beltNorthUp,   nothing,      beltNorthDown, nothing},
-//beltWest
-            {nothing,       beltWestUp,   nothing,       beltWestDown}
-};
-
 void TileEditWindow::accept() {
     // get terrain and obstacle values
     // (if multiple geom/obstacle values are selected, only use index >0)
@@ -191,61 +175,24 @@ void TileEditWindow::accept() {
 
     // get height slider status
     int newHeight = ui->horizontalSlider_Height->value();
-    bool relativeHeight = tileInfo.height == -1;
+    tileInfo.height = newHeight;
 
     // get layer selection status
     bool layer1    = ui->radioButton_Layer1->isChecked();
     bool layer2    = ui->radioButton_Layer2->isChecked();
+    if (layer2) {
+      tileInfo.layer = 1;
+    } else if (layer1) {
+      tileInfo.layer = 0;
+    } else {
+      tileInfo.layer = -1;
+    }
 
     // after the tile edit window is done, apply the changes to the tiles
     for (int v = selY; v < selY + selLength; v++) {
         for (int h = selX; h < selX + selWidth; h++) {
             maptile_t *newTile = &(level->tiles[v][h]);
-
-            if (newTile->geometry == 0 && tileInfo.geometry == -1) {
-                continue;
-            } else if (tileInfo.geometry == 0) {
-                *newTile = noTile;
-                continue;
-            }
-
-            if (tileInfo.geometry >= 0)
-                newTile->geometry = tileInfo.geometry;
-            if (tileInfo.obstacle >= 0) {
-                // handle multiple types for water hazard based on terrain value
-                if (tileInfo.obstacle == water
-                        && newTile->geometry >= slopes && newTile->geometry < endSlopes)
-                    newTile->obstacle = water - 1 + newTile->geometry;
-                // handle multiple types for bounce pads
-                else if (tileInfo.obstacle == bounceFlat
-                         && newTile->geometry >= slopes && newTile->geometry < slopesDouble)
-                    newTile->obstacle = bounce + newTile->geometry - slopes;
-                // handle multiple types for conveyor belts
-                else if (tileInfo.obstacle >= belts && tileInfo.obstacle < beltSlopes
-                         && newTile->geometry >= slopes && newTile->geometry < slopesDouble)
-                    newTile->obstacle = conveyorMap[tileInfo.obstacle - belts][newTile->geometry - slopes];
-                else
-                    newTile->obstacle = tileInfo.obstacle;
-            }
-
-            if (tileInfo.bumperNorth >= 0)
-                newTile->flags.bumperNorth = tileInfo.bumperNorth;
-            if (tileInfo.bumperSouth >= 0)
-                newTile->flags.bumperSouth = tileInfo.bumperSouth;
-            if (tileInfo.bumperEast >= 0)
-                newTile->flags.bumperEast = tileInfo.bumperEast;
-            if (tileInfo.bumperWest>= 0)
-                newTile->flags.bumperWest = tileInfo.bumperWest;
-
-            if (relativeHeight)
-                newTile->height += newHeight;
-            else
-                newTile->height = newHeight;
-
-            if      (layer2) newTile->flags.layer = 1;
-            else if (layer1) newTile->flags.layer = 0;
-
-            newTile->flags.dummy = 0;
+            Util::Instance()->ApplyTileToExistingTile(tileInfo, newTile);
         }
     }
 

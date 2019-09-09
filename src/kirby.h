@@ -14,6 +14,8 @@
 #define BG_PALETTE_SIZE        0x28
 #define NUM_BACKGROUNDS           6
 
+#include "level.h"
+#include <QPixmap>
 #include <QString>
 #include <map>
 
@@ -44,5 +46,35 @@ extern const StringMap musicNames;
 
 extern const StringMap kirbyGeometry;
 extern const StringMap kirbyObstacles;
+
+class Util {
+
+ public:
+  static Util* Instance();
+
+  bool GetPixmapSettingsForObstacle(const int& obstacle, const QPixmap** pixmap, int* frame);
+  bool ApplyTileToExistingTile(const tileinfo_t& tileInfo, maptile_t* newTile);
+  bool IsObstacleCharacterType(const int& obstacle);
+
+ private:
+  explicit Util();
+  static Util* _instance;
+
+  QPixmap _bounce;
+  QPixmap _bumpers;
+  QPixmap _conveyor;
+  QPixmap _dedede;
+  QPixmap _enemies;
+  QPixmap _gordo;
+  QPixmap _movers;
+  QPixmap _player;
+  QPixmap _rotate;
+  QPixmap _switches;
+  QPixmap _tiles;
+  QPixmap _traps;
+  QPixmap _unknown;
+  QPixmap _warps;
+  QPixmap _water;
+};
 
 #endif // KIRBY_H
