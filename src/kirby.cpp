@@ -4,7 +4,13 @@
 */
 
 #include "kirby.h"
+#include "level.h"
+#include "metatile.h"
 #include <QString>
+
+#include <QtDebug>
+
+using namespace stuff;
 
 const int fgPaletteBase[]  =  {0xD4A9, 0xD8ED, 0xD8ED};
 const int waterBase[][3]   = {{0xA444, 0xE030, 0xE030},
@@ -372,3 +378,229 @@ const StringMap kirbyObstacles ({
     {0xc2, "C2: Starting line (east end)"},
     {0xc3, "C3: Kirby (course 24-1 only)"},
 });
+
+/*
+  This array maps conveyor belt types to their counterparts for the different slope types.
+  Dimension 1 is the belt direction, dimension 2 is the slope direction
+*/
+const stuff::type_e conveyorMap[4][4] = {
+//slope      south          east          north          west
+//beltSouth
+            {beltSouthDown, nothing,      beltSouthUp,   nothing},
+//beltEast
+            {nothing,       beltEastDown, nothing,       beltEastUp},
+//beltNorth
+            {beltNorthUp,   nothing,      beltNorthDown, nothing},
+//beltWest
+            {nothing,       beltWestUp,   nothing,       beltWestDown}
+};
+
+Util* Util::_instance = nullptr;
+
+Util::Util() {
+ _bounce.load  (":images/bounce.png");
+ _bumpers.load (":images/bumpers.png");
+ _conveyor.load(":images/conveyor.png");
+ _dedede.load  (":images/dedede.png");
+ _enemies.load (":images/enemies.png");
+ _gordo.load   (":images/gordo3d.png");
+ _movers.load  (":images/movers.png");
+ _player.load  (":images/kirby.png");
+ _rotate.load  (":images/rotate.png");
+ _switches.load(":images/switches.png");
+ _tiles.load   (":images/terrain.png");
+ _traps.load   (":images/traps.png");
+ _unknown.load (":images/unknown.png");
+ _warps.load   (":images/warps.png");
+ _water.load   (":images/water.png");
+}
+
+Util* Util::Instance() {
+  if (_instance == nullptr) {
+    _instance = new Util();
+  }
+
+  return _instance;
+}
+
+bool Util::IsObstacleCharacterType(const int& obstacle) {
+  if (obstacle == 0x02) {  // whispy woods
+    return true;
+  } else if (obstacle == 0x0c || obstacle == 0xc3) {  // kirby
+    return true;
+  } else if (obstacle == 0x0d) {  // dedede
+    return true;
+  } else if (obstacle >= 0x40 && obstacle <= 0x52) {  // most enemies
+    return true;
+  } else if (obstacle == 0x57) {  // transformer
+    return true;
+  } else if (obstacle >= 0x80 && obstacle <= 0x97) {  // gordo
+    return true;
+  } else if (obstacle >= 0xac && obstacle <= 0xae) {  // kracko
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool Util::GetPixmapSettingsForObstacle(const int& obstacle, const QPixmap** pixmap, int* frame) {
+  if (obstacle == 0) {
+    return false;
+  }
+
+  // whispy woods (index 0x00 in enemies.png)
+  if (obstacle == 0x02) {
+    (*pixmap) = &_enemies;
+    (*frame) = 0;
+
+    // kirby's start pos (kirby.png)
+    // (this time also use the final boss version)
+  } else if (obstacle == 0x0c || obstacle == 0xc3) {
+    (*pixmap) = &_player;
+    (*frame) = 0;
+
+    // dedede (frame 0 in dedede.png)
+  } else if (obstacle == 0x0d) {
+    (*pixmap) = &_dedede;
+    (*frame) = 0;
+
+    // most enemies (ind. 01 to 13 in enemies.png)
+  } else if (obstacle >= 0x40 && obstacle <= 0x52) {
+    (*pixmap) = &_enemies;
+    (*frame) = obstacle - 0x40 + 1;
+
+    // transformer (ind. 14 in enemies.png
+  } else if (obstacle == 0x57) {
+    (*pixmap) = &_enemies;
+    (*frame) = 0x14;
+
+    // gordo (ind. 00 to 21 in gordo.png)
+  } else if (obstacle >= 0x80 && obstacle <= 0x97) {
+    (*pixmap) = &_gordo;
+    (*frame) = obstacle - 0x80;
+
+    // kracko (index 15-17 in enemies.png)
+  } else if (obstacle >= 0xac && obstacle <= 0xae) {
+    (*pixmap) = &_enemies;
+    (*frame) = obstacle - 0xac + 0x15;
+
+    // sand trap (index 0 in traps.png)
+  } else if (obstacle == 0x04) {
+    (*pixmap) = &_traps;
+    (*frame) = 0;
+
+    // spike pit (index 1 in traps.png)
+  } else if (obstacle == 0x05) {
+    (*pixmap) = &_traps;
+    (*frame) = 1;
+
+    // current, arrows, boosters, vents
+    // (ind. 00 to 0d in movers.png)
+  } else if (obstacle >= 0x10 && obstacle <= 0x1d) {
+    (*pixmap) = &_movers;
+    (*frame) = obstacle - 0x10;
+
+    // bouncy pads (ind. 0 to 4 in bounce.png)
+  } else if (obstacle >= 0x20 && obstacle <= 0x24) {
+    (*pixmap) = &_bounce;
+    (*frame) = obstacle - 0x20;
+
+    // bumpers (start at index 4 in bumpers.png)
+  } else if (obstacle >= 0x28 && obstacle <= 0x2d) {
+    (*pixmap) = &_bumpers;
+    (*frame) = obstacle - 0x28 + 4;
+
+    // conveyor belts (ind. 0 to b in conveyor.png)
+  } else if (obstacle >= 0x30 && obstacle <= 0x3b) {
+    (*pixmap) = &_conveyor;
+    (*frame) = obstacle - 0x30;
+
+    // switches (ind. 0 to 5 in switches.png)
+  } else if (obstacle >= 0x58 && obstacle <= 0x5d) {
+    (*pixmap) = &_switches;
+    (*frame) = obstacle - 0x58;
+
+    // water hazards (ind. 0 to e in water.png)
+    // (note types 62 & 63 seem unused)
+  } else if (obstacle >= 0x61 && obstacle <= 0x6f) {
+    (*pixmap) = &_water;
+    (*frame) = obstacle - 0x61;
+
+    // rotating spaces (ind. 0-b in rotate.png)
+  } else if (obstacle >= 0x70 && obstacle <= 0x7b) {
+    (*pixmap) = &_rotate;
+    (*frame) = obstacle & 0x01;
+
+    // warps (ind. 0 to 9 in warps.png)
+  } else if (obstacle >= 0xb0 && obstacle <= 0xb9) {
+    (*pixmap) = &_warps;
+    (*frame) = obstacle - 0xb0;
+
+    // starting line (ind. 1 to 4 in dedede.png)
+  } else if (obstacle >= 0xc0 && obstacle <= 0xc3) {
+    (*pixmap) = &_dedede;
+    (*frame) = obstacle - 0xc0 + 1;
+
+    // anything else - question mark (or don't draw)
+  } else {
+#ifdef QT_DEBUG
+    (*pixmap) = &_unknown;
+    (*frame) = 0;
+#endif
+    return false;
+  }
+
+  return true;
+}
+
+bool Util::ApplyTileToExistingTile(const tileinfo_t& tileInfo, maptile_t* newTile) {
+  const bool relativeHeight = tileInfo.height == -1;
+
+  if (newTile->geometry == 0 && tileInfo.geometry == -1) {
+    return false;
+  } else if (tileInfo.geometry == 0) {
+    *newTile = noTile;
+    return false;
+  }
+
+  if (tileInfo.geometry >= 0)
+    newTile->geometry = tileInfo.geometry;
+  if (tileInfo.obstacle >= 0) {
+    // handle multiple types for water hazard based on terrain value
+    if (tileInfo.obstacle == water
+        && newTile->geometry >= slopes && newTile->geometry < endSlopes)
+      newTile->obstacle = water - 1 + newTile->geometry;
+    // handle multiple types for bounce pads
+    else if (tileInfo.obstacle == bounceFlat
+             && newTile->geometry >= slopes && newTile->geometry < slopesDouble)
+      newTile->obstacle = bounce + newTile->geometry - slopes;
+    // handle multiple types for conveyor belts
+    else if (tileInfo.obstacle >= belts && tileInfo.obstacle < beltSlopes
+             && newTile->geometry >= slopes && newTile->geometry < slopesDouble)
+      newTile->obstacle = conveyorMap[tileInfo.obstacle - belts][newTile->geometry - slopes];
+    else
+      newTile->obstacle = tileInfo.obstacle;
+  }
+
+  if (tileInfo.bumperNorth >= 0)
+    newTile->flags.bumperNorth = tileInfo.bumperNorth;
+  if (tileInfo.bumperSouth >= 0)
+    newTile->flags.bumperSouth = tileInfo.bumperSouth;
+  if (tileInfo.bumperEast >= 0)
+    newTile->flags.bumperEast = tileInfo.bumperEast;
+  if (tileInfo.bumperWest>= 0)
+    newTile->flags.bumperWest = tileInfo.bumperWest;
+
+  if (relativeHeight)
+    newTile->height += tileInfo.height;
+  else
+    newTile->height = tileInfo.height;
+
+  if (tileInfo.layer >= 0) {
+    newTile->flags.layer = tileInfo.layer;
+  }
+
+  newTile->flags.dummy = 0;
+
+  return true;
+}

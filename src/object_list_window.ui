@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ObjectListWindow</class>
+ <widget class="QDialog" name="ObjectListWindow">
+  <property name="geometry">
+   <rect>
+    <x>800</x>
+    <y>0</y>
+    <width>640</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Insert Objects</string>
+  </property>
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <widget class="QWidget" name="tabWidgetPage1" native="true">
+      <attribute name="title">
+        <string>Characters</string>
+      </attribute>
+      <layout class="QGridLayout" name="charactersHolder"/>
+     </widget>
+
+     <widget class="QWidget" name="tabWidgetPage2" native="true">
+       <attribute name="title">
+         <string>Obstacles</string>
+       </attribute>
+       <layout class="QGridLayout" name="obstaclesHolder"/>
+     </widget>
+
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

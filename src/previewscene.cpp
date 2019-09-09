@@ -127,52 +127,17 @@ void PreviewScene::refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_
     if (sprites) {
         for (int y = 0; y < mapLength; y++) {
             for (int x = 0; x < mapWidth; x++) {
-                QPixmap gfx;
+              const QPixmap* gfx;
                 int frame;
                 int obs = level->tiles[y][x].obstacle;
                 int z = level->tiles[y][x].height;
 
-                if (obs == 0) continue;
+                if (!Util::Instance()->GetPixmapSettingsForObstacle(obs, &gfx, &frame)) {
+                  continue;
+                }
 
-                // whispy woods (index 0x00 in enemies.png)
-                if (obs == 0x02) {
-                    gfx = enemies;
-                    frame = 0;
-
-                // kirby's start pos (kirby.png)
-                // (this time also use the final boss version)
-                } else if (obs == 0x0c || obs == 0xc3) {
-                    gfx = player;
-                    frame = 0;
-
-                // dedede (frame 0 in dedede.png)
-                } else if (obs == 0x0d) {
-                    gfx = dedede;
-                    frame = 0;
-
-                // most enemies (ind. 01 to 13 in enemies.png)
-                } else if (obs >= 0x40 && obs <= 0x52) {
-                    gfx = enemies;
-                    frame = obs - 0x40 + 1;
-
-                // transformer (ind. 14 in enemies.png
-                } else if (obs == 0x57) {
-                    gfx = enemies;
-                    frame = 0x14;
-
-                // gordo (ind. 00 to 21 in gordo.png)
-                } else if (obs >= 0x80 && obs <= 0x97) {
-                    gfx = gordo;
-                    frame = obs - 0x80;
-
-                // kracko (index 15-17 in enemies.png)
-                } else if (obs >= 0xac && obs <= 0xae) {
-                    gfx = enemies;
-                    frame = obs - 0xac + 0x15;
-
-                // anything else - question mark (or don't draw)
-                } else {
-                    obs = 0;
+                if (!Util::Instance()->IsObstacleCharacterType(obs)) {
+                  continue;
                 }
 
                 // draw the selected obstacle
@@ -186,14 +151,14 @@ void PreviewScene::refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_
                     // and  TILE_SIZE / 4 down for each positive move on the y-axis (north to south)
                     // and  TILE_SIZE / 4 up   for each positive move on the z-axis (tile z)
                     // and then adjust for height of sprites
-                    int startY = (TILE_SIZE / 4) * (mapHeight + x + y - z + 4) - gfx.height();
+                    int startY = (TILE_SIZE / 4) * (mapHeight + x + y - z + 4) - gfx->height();
                     // move down half a tile's worth if the sprite is on a slope
                     if (level->tiles[y][x].geometry >= stuff::slopes)
                         startY += TILE_SIZE / 8;
 
                     painter.drawPixmap(startX, startY,
-                                       gfx, frame * TILE_SIZE, 0,
-                                       TILE_SIZE, gfx.height());
+                                       *gfx, frame * TILE_SIZE, 0,
+                                       TILE_SIZE, gfx->height());
                 }
             }
         }
@@ -205,4 +170,3 @@ void PreviewScene::refresh(uint16_t (&playfield)[2][MAX_FIELD_HEIGHT][MAX_FIELD_
     this->addPixmap(pixmap);
     this->update();
 }
-

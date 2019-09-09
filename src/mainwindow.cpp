@@ -49,7 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     levelLabel(new QLabel()),
     scene(new MapScene(this, &currentLevel)),
-    previewWin(new PreviewWindow(this, &currentLevel))
+    previewWin(new PreviewWindow(this, &currentLevel)),
+    objectListWindow(new ObjectListWindow(this))
 {
     ui->setupUi(this);
 
@@ -90,6 +91,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_Delete->setShortcut(Qt::Key_Backspace);
 
 #endif
+
+    this->objectListWindow->show();
 }
 
 MainWindow::~MainWindow()

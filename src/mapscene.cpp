@@ -3,6 +3,7 @@
     See COPYING.txt for details.
 */
 
+#include <QMimeData>
 #include <QPixmap>
 #include <QPainter>
 #include <algorithm>
@@ -16,6 +17,8 @@
 #include "mapchange.h"
 #include "tileeditwindow.h"
 #include "graphics.h"
+
+#include <QtDebug>
 
 #define MAP_TEXT_PAD_H 2
 #define MAP_TEXT_PAD_V 1
@@ -59,6 +62,7 @@ MapScene::MapScene(QWidget *parent, leveldata_t *currentLevel)
     switches.load(":images/switches.png");
     unknown.load (":images/unknown.png");
 
+    this->setAcceptDrops(true);
     this->setMouseTracking(true);
     this->setFocusPolicy(Qt::WheelFocus);
 
@@ -122,7 +126,7 @@ void MapScene::mousePressEvent(QMouseEvent *event) {
   Handle when a double-click occurs (used to start the tile edit window)
 */
 void MapScene::mouseDoubleClickEvent(QMouseEvent *event) {
-    editTiles();
+  editTiles();
     emit doubleClicked();
 
     event->accept();
@@ -133,7 +137,7 @@ void MapScene::mouseDoubleClickEvent(QMouseEvent *event) {
   Handle when the left mouse button is released
 */
 void MapScene::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton) {
         selecting = false;
 
         // normalize selection dimensions (i.e. handle negative height/width)
@@ -156,7 +160,7 @@ void MapScene::mouseReleaseEvent(QMouseEvent *event) {
   Handle when the mouse is moved over the scene
  */
 void MapScene::mouseMoveEvent(QMouseEvent *event) {
-    if (selecting && event->buttons() & Qt::LeftButton) {
+  if (selecting && event->buttons() & Qt::LeftButton) {
         // left button down: generate/show selection
         updateSelection(event);
     } else {
@@ -478,6 +482,78 @@ void MapScene::updateSelection(QMouseEvent *event) {
     update();
 }
 
+void MapScene::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
+        if (event->source() == this) {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    } else {
+        event->ignore();
+    }
+}
+
+void MapScene::dropEvent(QDropEvent *event) {
+  qDebug() << "Got drop event" << event->pos();
+
+  if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
+    QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
+    QDataStream dataStream(&itemData, QIODevice::ReadOnly);
+
+    int identifier;
+    dataStream >> identifier;
+
+    qDebug() << "Dropping item with identifier:" << identifier;
+
+    QPointF pos = event->pos();
+    tileX = floor(pos.x() / TILE_SIZE);
+    tileY = floor(pos.y() / TILE_SIZE);
+
+    qDebug() << "Tile:" << tileX << tileY;
+
+    maptile_t* tile = &level->tiles[tileY][tileX];
+    tileinfo_t tileInfo;
+    tileInfo.geometry = 1;
+    tileInfo.obstacle = identifier;
+    tileInfo.height = 0;
+    tileInfo.layer = 0;
+    tileInfo.bumperSouth = 0;
+    tileInfo.bumperEast = 0;
+    tileInfo.bumperNorth = 0;
+    tileInfo.bumperWest = 0;
+
+    Util::Instance()->ApplyTileToExistingTile(tileInfo, tile);
+
+    qDebug() << "New Tile Properties:"
+             << tile->geometry
+             << tile->obstacle
+             << tile->height
+             << tile->flags.bumperSouth
+             << tile->flags.bumperEast
+             << tile->flags.bumperNorth
+             << tile->flags.bumperWest
+             << tile->flags.layer
+             << tile->flags.dummy
+             << tile->flags.layer;
+
+    MapChange *edit = new MapChange(level, tileX, tileY, 1, 1);
+    stack.push(edit);
+
+    emit edited();
+
+    if (event->source() == this) {
+      event->setDropAction(Qt::MoveAction);
+      event->accept();
+    } else {
+      event->acceptProposedAction();
+    }
+  } else {
+    event->ignore();
+  }
+}
+
 /*
   Display information about a map tile being hovered over.
   Called when the mouse is over the MapScene without the left button held down.
@@ -539,6 +615,7 @@ void MapScene::paintEvent(QPaintEvent *event) {
     for (int h = rect.top() / TILE_SIZE; h < MAX_2D_SIZE && h <= rect.bottom() / TILE_SIZE; h++) {
         for (int w = rect.left() / TILE_SIZE; w < MAX_2D_SIZE && w <= rect.right() / TILE_SIZE; w++) {
             maptile_t *tile = &level->tiles[h][w];
+
             int geo = tile->geometry;
             if (geo) {
                 painter.drawPixmap(w * TILE_SIZE, h * TILE_SIZE,
@@ -550,129 +627,16 @@ void MapScene::paintEvent(QPaintEvent *event) {
             // include obstacles and all other stuff in the same pass
             int obs = tile->obstacle;
 
-            QPixmap gfx;
+            const QPixmap* gfx;
             int frame = 0;
-
-            /*
-             *
-             * START OF KIRBY OBSTACLE CHECK
-             * (TODO: move the enum from metatile.h and use it instead of magic numbers
-             */
-
-            // whispy woods (index 0x00 in enemies.png)
-            if (obs == 0x02) {
-                gfx = enemies;
-                frame = 0;
-
-            // sand trap (index 0 in traps.png)
-            } else if (obs == 0x04) {
-                gfx = traps;
-                frame = 0;
-
-            // spike pit (index 1 in traps.png)
-            } else if (obs == 0x05) {
-                gfx = traps;
-                frame = 1;
-
-            // kirby's start pos (kirby.png)
-            } else if (obs == 0x0c) {
-                gfx = kirby;
-                frame = 0;
-
-            // dedede (frame 0 in dedede.png)
-            } else if (obs == 0x0d) {
-                gfx = dedede;
-                frame = 0;
-
-            // current, arrows, boosters, vents
-            // (ind. 00 to 0d in movers.png)
-            } else if (obs >= 0x10 && obs <= 0x1d) {
-                gfx = movers;
-                frame = obs - 0x10;
-
-            // bouncy pads (ind. 0 to 4 in bounce.png)
-            } else if (obs >= 0x20 && obs <= 0x24) {
-                gfx = bounce;
-                frame = obs - 0x20;
-
-            // bumpers (start at index 4 in bumpers.png)
-            } else if (obs >= 0x28 && obs <= 0x2d) {
-                gfx = bumpers;
-                frame = obs - 0x28 + 4;
-
-            // conveyor belts (ind. 0 to b in conveyor.png)
-            } else if (obs >= 0x30 && obs <= 0x3b) {
-                gfx = conveyor;
-                frame = obs - 0x30;
-
-            // most enemies (ind. 01 to 13 in enemies.png)
-            } else if (obs >= 0x40 && obs <= 0x52) {
-                gfx = enemies;
-                frame = obs - 0x40 + 1;
-
-            // transformer (ind. 14 in enemies.png
-            } else if (obs == 0x57) {
-                gfx = enemies;
-                frame = 0x14;
-
-            // switches (ind. 0 to 5 in switches.png)
-            } else if (obs >= 0x58 && obs <= 0x5d) {
-                gfx = switches;
-                frame = obs - 0x58;
-
-            // water hazards (ind. 0 to e in water.png)
-            // (note types 62 & 63 seem unused)
-            } else if (obs >= 0x61 && obs <= 0x6f) {
-                gfx = water;
-                frame = obs - 0x61;
-
-            // rotating spaces (ind. 0-b in rotate.png)
-            } else if (obs >= 0x70 && obs <= 0x7b) {
-                gfx = rotate;
-                frame = obs & 0x01;
-
-            // gordo (ind. 00 to 21 in gordo.png)
-            } else if (obs >= 0x80 && obs <= 0xa1) {
-                gfx = gordo;
-                frame = obs - 0x80;
-
-            // kracko (index 15-17 in enemies.png)
-            } else if (obs >= 0xac && obs <= 0xae) {
-                gfx = enemies;
-                frame = obs - 0xac + 0x15;
-
-            // warps (ind. 0 to 9 in warps.png)
-            } else if (obs >= 0xb0 && obs <= 0xb9) {
-                gfx = warps;
-                frame = obs - 0xb0;
-
-            // starting line (ind. 1 to 4 in dedede.png)
-            } else if (obs >= 0xc0 && obs <= 0xc3) {
-                gfx = dedede;
-                frame = obs - 0xc0 + 1;
-
-            // anything else - question mark (or don't draw)
-            } else {
-#ifdef QT_DEBUG
-                gfx = unknown;
-                frame = 0;
-#else
-                obs = 0;
-#endif
-            }
-
-            /*
-             *
-             * END OF KIRBY OBSTACLE CHECK
-             *
-             */
+            Util::Instance()->GetPixmapSettingsForObstacle(obs, &gfx, &frame);
 
             // draw the selected obstacle
             if (obs) {
                 painter.drawPixmap(w * TILE_SIZE,
-                                   (h + 1) * TILE_SIZE - gfx.height(),
-                                   gfx, frame * TILE_SIZE, 0,
-                                   TILE_SIZE, gfx.height());
+                                   (h + 1) * TILE_SIZE - gfx->height(),
+                                   *gfx, frame * TILE_SIZE, 0,
+                                   TILE_SIZE, gfx->height());
             }
 
             // render side bumpers (ind. 0 - 3 in bumpers.png)
